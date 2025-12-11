@@ -6,16 +6,18 @@
     <title>Tính Lương Gross - Net</title>
     <style>
         :root {
-            --bg-primary: #0f172a;
-            --bg-secondary: #1e293b;
-            --bg-card: #334155;
-            --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --bg-card: #f1f5f9;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
             --accent: #3b82f6;
             --accent-hover: #2563eb;
             --success: #10b981;
+            --danger: #ef4444;
             --warning: #f59e0b;
-            --border: #475569;
+            --border: #e2e8f0;
+            --header-bg: #f8fafc;
         }
 
         * {
@@ -45,10 +47,7 @@
         h1 {
             font-size: 2rem;
             margin-bottom: 8px;
-            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: var(--accent);
         }
 
         .subtitle {
@@ -58,9 +57,10 @@
 
         .card {
             background: var(--bg-secondary);
-            border-radius: 16px;
+            border-radius: 12px;
             padding: 24px;
             margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             border: 1px solid var(--border);
         }
 
@@ -68,17 +68,8 @@
             font-size: 1.1rem;
             margin-bottom: 20px;
             color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .card-title::before {
-            content: '';
-            width: 4px;
-            height: 20px;
-            background: var(--accent);
-            border-radius: 2px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--accent);
         }
 
         .form-row {
@@ -97,13 +88,14 @@
         label {
             font-size: 0.85rem;
             color: var(--text-secondary);
+            font-weight: 500;
         }
 
         input, select {
             padding: 12px 14px;
             border: 1px solid var(--border);
             border-radius: 8px;
-            background: var(--bg-card);
+            background: var(--bg-secondary);
             color: var(--text-primary);
             font-size: 1rem;
             transition: border-color 0.2s;
@@ -112,10 +104,6 @@
         input:focus, select:focus {
             outline: none;
             border-color: var(--accent);
-        }
-
-        input::placeholder {
-            color: var(--text-secondary);
         }
 
         .radio-group {
@@ -193,160 +181,167 @@
             display: block;
         }
 
-        .result-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 16px;
-        }
-
-        .result-item {
-            background: var(--bg-card);
-            padding: 16px;
-            border-radius: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .result-label {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
-
-        .result-value {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .result-value.highlight {
-            color: var(--success);
-            font-size: 1.3rem;
-        }
-
-        .result-value.warning {
-            color: var(--warning);
-        }
-
-        .divider {
-            height: 1px;
-            background: var(--border);
-            margin: 16px 0;
-        }
-
-        .summary-box {
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
-            border: 1px solid var(--accent);
-            border-radius: 12px;
-            padding: 20px;
-            margin-top: 16px;
-        }
-
-        .summary-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-        }
-
-        .summary-row.total {
-            border-top: 1px solid var(--border);
-            margin-top: 8px;
-            padding-top: 16px;
-        }
-
-        .info-text {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            margin-top: 16px;
-            padding: 12px;
-            background: var(--bg-card);
-            border-radius: 8px;
-            line-height: 1.6;
-        }
-
-        .tax-table {
+        /* Summary Table */
+        .summary-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 12px;
-            font-size: 0.85rem;
+            margin-bottom: 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
         }
 
-        .tax-table th, .tax-table td {
-            padding: 10px 12px;
+        .summary-table th {
+            background: var(--header-bg);
+            padding: 14px 16px;
+            text-align: center;
+            font-weight: 600;
+            color: var(--text-primary);
+            border-bottom: 2px solid var(--border);
+        }
+
+        .summary-table td {
+            padding: 14px 16px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .summary-table .gross { color: var(--text-primary); }
+        .summary-table .insurance { color: var(--danger); }
+        .summary-table .tax { color: var(--danger); }
+        .summary-table .net { color: var(--success); }
+
+        /* Detail Table */
+        .detail-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 24px;
+        }
+
+        .detail-table th {
+            background: var(--header-bg);
+            padding: 12px 16px;
             text-align: left;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
             border-bottom: 1px solid var(--border);
         }
 
-        .tax-table th {
-            background: var(--bg-card);
-            color: var(--text-secondary);
+        .detail-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .detail-table td:last-child {
+            text-align: right;
             font-weight: 500;
         }
 
-        .tax-table td:last-child {
+        .detail-table tr:hover {
+            background: var(--bg-card);
+        }
+
+        .detail-table .section-header {
+            background: var(--accent);
+            color: white;
+        }
+
+        .detail-table .section-header td {
+            font-weight: 600;
+            padding: 10px 16px;
+        }
+
+        .detail-table .subtotal {
+            background: var(--bg-card);
+            font-weight: 600;
+        }
+
+        .detail-table .total-row {
+            background: linear-gradient(90deg, #10b981, #059669);
+            color: white;
+        }
+
+        .detail-table .total-row td {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .value-negative { color: var(--danger); }
+        .value-positive { color: var(--success); }
+        .value-zero { color: var(--text-secondary); }
+
+        /* Tax Detail Table */
+        .tax-detail-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+            font-size: 0.9rem;
+        }
+
+        .tax-detail-table th {
+            background: var(--header-bg);
+            padding: 10px 12px;
+            text-align: left;
+            font-weight: 500;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tax-detail-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tax-detail-table td:last-child {
             text-align: right;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            color: var(--accent);
+            margin: 24px 0 12px 0;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .employer-section {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 2px solid var(--border);
+        }
+
+        .info-box {
+            background: #fef3c7;
+            border: 1px solid #fcd34d;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-top: 16px;
+            font-size: 0.85rem;
+            color: #92400e;
         }
 
         .law-badge {
             display: inline-block;
-            padding: 4px 10px;
+            padding: 4px 12px;
             background: var(--accent);
             color: white;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            margin-left: 10px;
-        }
-
-        .toggle-details {
-            background: none;
-            border: none;
-            color: var(--accent);
-            cursor: pointer;
-            font-size: 0.9rem;
-            padding: 8px 0;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .toggle-details:hover {
-            text-decoration: underline;
-        }
-
-        .details-section {
-            display: none;
-            margin-top: 16px;
-        }
-
-        .details-section.show {
-            display: block;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-left: 12px;
         }
 
         @media (max-width: 600px) {
-            h1 {
-                font-size: 1.5rem;
-            }
-
-            .card {
-                padding: 16px;
-            }
-
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-
-            .btn-group {
-                flex-direction: column;
-            }
-
-            .radio-group {
-                flex-direction: column;
-            }
-
-            .radio-option {
-                width: 100%;
-            }
+            h1 { font-size: 1.5rem; }
+            .card { padding: 16px; }
+            .form-row { grid-template-columns: 1fr; }
+            .btn-group { flex-direction: column; }
+            .radio-group { flex-direction: column; }
+            .radio-option { width: 100%; }
+            .summary-table th, .summary-table td { padding: 10px 8px; font-size: 0.9rem; }
+            .detail-table td, .detail-table th { padding: 10px 12px; }
         }
     </style>
 </head>
@@ -428,112 +423,69 @@
         <!-- Result Section -->
         <div class="card result-section" id="resultSection">
             <h2 class="card-title">
-                Kết quả tính toán
+                Kết quả
                 <span class="law-badge" id="lawBadge">Luật từ 01/07/2025</span>
             </h2>
 
-            <div class="summary-box">
-                <div class="summary-row">
-                    <span class="result-label">Lương Gross:</span>
-                    <span class="result-value" id="resultGross">0 VNĐ</span>
-                </div>
-                <div class="summary-row">
-                    <span class="result-label">Tổng khấu trừ:</span>
-                    <span class="result-value warning" id="resultDeduction">0 VNĐ</span>
-                </div>
-                <div class="summary-row total">
-                    <span class="result-label" style="font-weight: 600;">Lương Net thực nhận:</span>
-                    <span class="result-value highlight" id="resultNet">0 VNĐ</span>
-                </div>
-            </div>
+            <!-- Summary Table -->
+            <table class="summary-table">
+                <thead>
+                    <tr>
+                        <th>Lương Gross</th>
+                        <th>Bảo hiểm</th>
+                        <th>Thuế TNCN</th>
+                        <th>Lương Net</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="gross" id="sumGross">0</td>
+                        <td class="insurance" id="sumInsurance">0</td>
+                        <td class="tax" id="sumTax">0</td>
+                        <td class="net" id="sumNet">0</td>
+                    </tr>
+                </tbody>
+            </table>
 
-            <button class="toggle-details" onclick="toggleDetails()">
-                <span id="toggleIcon">▼</span> Xem chi tiết
-            </button>
+            <!-- Detail Section: Diễn giải chi tiết -->
+            <h3 class="section-title">Diễn giải chi tiết (VNĐ)</h3>
+            <table class="detail-table" id="detailTable">
+                <tbody id="detailBody">
+                </tbody>
+            </table>
 
-            <div class="details-section" id="detailsSection">
-                <div class="divider"></div>
+            <!-- Tax Breakdown -->
+            <h3 class="section-title">(*) Chi tiết thuế thu nhập cá nhân (VNĐ)</h3>
+            <table class="tax-detail-table">
+                <thead>
+                    <tr>
+                        <th>Mức chịu thuế</th>
+                        <th>Thuế suất</th>
+                        <th>Tiền nộp</th>
+                    </tr>
+                </thead>
+                <tbody id="taxDetailBody">
+                </tbody>
+            </table>
 
-                <h3 style="font-size: 1rem; margin-bottom: 12px; color: var(--text-secondary);">Chi tiết các khoản bảo hiểm</h3>
-                <div class="result-grid">
-                    <div class="result-item">
-                        <span class="result-label">BHXH (8%)</span>
-                        <span class="result-value" id="resultBHXH">0 VNĐ</span>
-                    </div>
-                    <div class="result-item">
-                        <span class="result-label">BHYT (1.5%)</span>
-                        <span class="result-value" id="resultBHYT">0 VNĐ</span>
-                    </div>
-                    <div class="result-item">
-                        <span class="result-label">BHTN (1%)</span>
-                        <span class="result-value" id="resultBHTN">0 VNĐ</span>
-                    </div>
-                    <div class="result-item">
-                        <span class="result-label">Tổng BH (10.5%)</span>
-                        <span class="result-value" id="resultTotalInsurance">0 VNĐ</span>
-                    </div>
-                </div>
-
-                <div class="divider"></div>
-
-                <h3 style="font-size: 1rem; margin-bottom: 12px; color: var(--text-secondary);">Chi tiết thuế TNCN</h3>
-                <div class="result-grid">
-                    <div class="result-item">
-                        <span class="result-label">Thu nhập chịu thuế</span>
-                        <span class="result-value" id="resultTaxableIncome">0 VNĐ</span>
-                    </div>
-                    <div class="result-item">
-                        <span class="result-label">Giảm trừ bản thân</span>
-                        <span class="result-value" id="resultPersonalDeduction">0 VNĐ</span>
-                    </div>
-                    <div class="result-item">
-                        <span class="result-label">Giảm trừ người phụ thuộc</span>
-                        <span class="result-value" id="resultDependentDeduction">0 VNĐ</span>
-                    </div>
-                    <div class="result-item">
-                        <span class="result-label">Thu nhập tính thuế</span>
-                        <span class="result-value" id="resultAssessableIncome">0 VNĐ</span>
-                    </div>
-                </div>
-
-                <div class="result-grid" style="margin-top: 12px;">
-                    <div class="result-item" style="grid-column: 1 / -1;">
-                        <span class="result-label">Thuế TNCN phải nộp</span>
-                        <span class="result-value warning" id="resultTax">0 VNĐ</span>
-                    </div>
-                </div>
-
-                <div class="divider"></div>
-
-                <h3 style="font-size: 1rem; margin-bottom: 12px; color: var(--text-secondary);">Bảng thuế lũy tiến từng phần</h3>
-                <table class="tax-table" id="taxBreakdown">
-                    <thead>
-                        <tr>
-                            <th>Bậc</th>
-                            <th>Thu nhập tính thuế (triệu)</th>
-                            <th>Thuế suất</th>
-                            <th>Thuế</th>
-                        </tr>
-                    </thead>
-                    <tbody id="taxBreakdownBody">
+            <!-- Employer Cost -->
+            <div class="employer-section">
+                <h3 class="section-title">Người sử dụng lao động trả (VNĐ)</h3>
+                <table class="detail-table">
+                    <tbody id="employerBody">
                     </tbody>
                 </table>
             </div>
 
-            <div class="info-text">
-                <strong>Ghi chú:</strong><br>
-                • Giảm trừ bản thân: <span id="notePersonal">11 triệu</span>/tháng<br>
-                • Giảm trừ người phụ thuộc: <span id="noteDependent">4.4 triệu</span>/người/tháng<br>
-                • Mức lương đóng BHXH tối đa: <span id="noteMaxInsurance">46.8 triệu</span>/tháng (20 lần mức tham chiếu)<br>
-                • Mức lương đóng BHTN tối đa: <span id="noteMaxBHTN">theo 20 lần lương tối thiểu vùng</span>
+            <div class="info-box">
+                <strong>Ghi chú:</strong> Kết quả chỉ mang tính chất tham khảo. Các khoản bảo hiểm và thuế thực tế có thể khác tùy theo hợp đồng lao động và quy định của công ty.
             </div>
         </div>
 
         <!-- Info Section -->
         <div class="card">
             <h2 class="card-title">Thông tin quy định</h2>
-
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
                 <div>
                     <h4 style="color: var(--accent); margin-bottom: 10px;">Từ 01/07/2025</h4>
                     <ul style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.8; padding-left: 20px;">
@@ -557,115 +509,96 @@
     </div>
 
     <script>
-        // Constants
         const CONFIG = {
             '2025': {
                 personalDeduction: 11000000,
                 dependentDeduction: 4400000,
                 referenceWage: 2340000,
-                minWage: {
-                    1: 4960000,
-                    2: 4410000,
-                    3: 3860000,
-                    4: 3450000
-                }
+                minWage: { 1: 4960000, 2: 4410000, 3: 3860000, 4: 3450000 }
             },
             '2026': {
                 personalDeduction: 15500000,
                 dependentDeduction: 6200000,
                 referenceWage: 2340000,
-                minWage: {
-                    1: 5310000,
-                    2: 4680000,
-                    3: 4110000,
-                    4: 3700000
-                }
+                minWage: { 1: 5310000, 2: 4680000, 3: 4110000, 4: 3700000 }
             }
         };
 
-        // Tax brackets (same for both years currently)
         const TAX_BRACKETS = [
-            { limit: 5000000, rate: 0.05 },
-            { limit: 10000000, rate: 0.10 },
-            { limit: 18000000, rate: 0.15 },
-            { limit: 32000000, rate: 0.20 },
-            { limit: 52000000, rate: 0.25 },
-            { limit: 80000000, rate: 0.30 },
-            { limit: Infinity, rate: 0.35 }
+            { limit: 5000000, rate: 0.05, label: 'Đến 5 triệu VNĐ' },
+            { limit: 10000000, rate: 0.10, label: 'Trên 5 triệu VNĐ đến 10 triệu VNĐ' },
+            { limit: 18000000, rate: 0.15, label: 'Trên 10 triệu VNĐ đến 18 triệu VNĐ' },
+            { limit: 32000000, rate: 0.20, label: 'Trên 18 triệu VNĐ đến 32 triệu VNĐ' },
+            { limit: 52000000, rate: 0.25, label: 'Trên 32 triệu VNĐ đến 52 triệu VNĐ' },
+            { limit: 80000000, rate: 0.30, label: 'Trên 52 triệu VNĐ đến 80 triệu VNĐ' },
+            { limit: Infinity, rate: 0.35, label: 'Trên 80 triệu VNĐ' }
         ];
 
-        // Insurance rates (employee contribution)
-        const INSURANCE_RATES = {
-            BHXH: 0.08,
-            BHYT: 0.015,
-            BHTN: 0.01
-        };
+        const INSURANCE_EMPLOYEE = { BHXH: 0.08, BHYT: 0.015, BHTN: 0.01 };
+        const INSURANCE_EMPLOYER = { BHXH: 0.17, BHTNLD: 0.005, BHYT: 0.03, BHTN: 0.01 };
 
         let currentLaw = '2025';
         let currentCalcType = 'gross';
 
         function updateLaw() {
             const law2025 = document.querySelector('input[name="law"][value="2025"]');
-            const law2026 = document.querySelector('input[name="law"][value="2026"]');
-
             document.getElementById('law2025-option').classList.toggle('active', law2025.checked);
-            document.getElementById('law2026-option').classList.toggle('active', law2026.checked);
-
+            document.getElementById('law2026-option').classList.toggle('active', !law2025.checked);
             currentLaw = law2025.checked ? '2025' : '2026';
         }
 
         function updateCalcType() {
             const grossOption = document.querySelector('input[name="calcType"][value="gross"]');
-            const netOption = document.querySelector('input[name="calcType"][value="net"]');
-
             document.getElementById('gross-option').classList.toggle('active', grossOption.checked);
-            document.getElementById('net-option').classList.toggle('active', netOption.checked);
-
+            document.getElementById('net-option').classList.toggle('active', !grossOption.checked);
             currentCalcType = grossOption.checked ? 'gross' : 'net';
-
-            const salaryLabel = document.getElementById('salary-label');
-            salaryLabel.textContent = currentCalcType === 'gross' ? 'Lương Gross (VNĐ):' : 'Lương Net mong muốn (VNĐ):';
+            document.getElementById('salary-label').textContent = currentCalcType === 'gross' ? 'Lương Gross (VNĐ):' : 'Lương Net mong muốn (VNĐ):';
         }
 
         function formatNumber(input) {
             let value = input.value.replace(/[^\d]/g, '');
-            if (value) {
-                value = parseInt(value).toLocaleString('vi-VN');
-            }
+            if (value) value = parseInt(value).toLocaleString('vi-VN');
             input.value = value;
         }
 
         function parseNumber(str) {
-            if (!str) return 0;
-            return parseInt(str.replace(/[^\d]/g, '')) || 0;
+            return parseInt((str || '').replace(/[^\d]/g, '')) || 0;
         }
 
-        function formatCurrency(num) {
-            return Math.round(num).toLocaleString('vi-VN') + ' VNĐ';
+        function formatCurrency(num, showSign = false) {
+            const rounded = Math.round(num);
+            const formatted = Math.abs(rounded).toLocaleString('vi-VN');
+            if (showSign && rounded < 0) return '- ' + formatted;
+            if (showSign && rounded > 0) return formatted;
+            return formatted;
         }
 
         function calculateInsurance(grossSalary, region) {
             const config = CONFIG[currentLaw];
             const maxBHXH_BHYT = config.referenceWage * 20;
             const maxBHTN = config.minWage[region] * 20;
-
             const baseBHXH_BHYT = Math.min(grossSalary, maxBHXH_BHYT);
             const baseBHTN = Math.min(grossSalary, maxBHTN);
 
-            const bhxh = baseBHXH_BHYT * INSURANCE_RATES.BHXH;
-            const bhyt = baseBHXH_BHYT * INSURANCE_RATES.BHYT;
-            const bhtn = baseBHTN * INSURANCE_RATES.BHTN;
-
             return {
-                bhxh,
-                bhyt,
-                bhtn,
-                total: bhxh + bhyt + bhtn
+                employee: {
+                    bhxh: baseBHXH_BHYT * INSURANCE_EMPLOYEE.BHXH,
+                    bhyt: baseBHXH_BHYT * INSURANCE_EMPLOYEE.BHYT,
+                    bhtn: baseBHTN * INSURANCE_EMPLOYEE.BHTN,
+                    get total() { return this.bhxh + this.bhyt + this.bhtn; }
+                },
+                employer: {
+                    bhxh: baseBHXH_BHYT * INSURANCE_EMPLOYER.BHXH,
+                    bhtnld: baseBHXH_BHYT * INSURANCE_EMPLOYER.BHTNLD,
+                    bhyt: baseBHXH_BHYT * INSURANCE_EMPLOYER.BHYT,
+                    bhtn: baseBHTN * INSURANCE_EMPLOYER.BHTN,
+                    get total() { return this.bhxh + this.bhtnld + this.bhyt + this.bhtn; }
+                }
             };
         }
 
         function calculateTax(assessableIncome) {
-            if (assessableIncome <= 0) return { total: 0, breakdown: [] };
+            if (assessableIncome <= 0) return { total: 0, breakdown: TAX_BRACKETS.map(b => ({ ...b, tax: 0 })) };
 
             let tax = 0;
             let remaining = assessableIncome;
@@ -675,20 +608,11 @@
             for (const bracket of TAX_BRACKETS) {
                 const bracketSize = bracket.limit - prevLimit;
                 const taxableInBracket = Math.min(remaining, bracketSize);
-
-                if (taxableInBracket > 0) {
-                    const taxInBracket = taxableInBracket * bracket.rate;
-                    tax += taxInBracket;
-                    breakdown.push({
-                        from: prevLimit,
-                        to: prevLimit + taxableInBracket,
-                        rate: bracket.rate,
-                        tax: taxInBracket
-                    });
-                    remaining -= taxableInBracket;
-                }
-
-                if (remaining <= 0) break;
+                const taxInBracket = taxableInBracket > 0 ? taxableInBracket * bracket.rate : 0;
+                tax += taxInBracket;
+                breakdown.push({ ...bracket, tax: taxInBracket });
+                remaining -= taxableInBracket;
+                if (remaining <= 0) remaining = 0;
                 prevLimit = bracket.limit;
             }
 
@@ -697,26 +621,18 @@
 
         function calculateGrossToNet(grossSalary, region, dependents, hasInsurance) {
             const config = CONFIG[currentLaw];
+            const insurance = hasInsurance ? calculateInsurance(grossSalary, region) : {
+                employee: { bhxh: 0, bhyt: 0, bhtn: 0, total: 0 },
+                employer: { bhxh: 0, bhtnld: 0, bhyt: 0, bhtn: 0, total: 0 }
+            };
 
-            // Calculate insurance
-            const insurance = hasInsurance ? calculateInsurance(grossSalary, region) : { bhxh: 0, bhyt: 0, bhtn: 0, total: 0 };
-
-            // Taxable income = Gross - Insurance
-            const taxableIncome = grossSalary - insurance.total;
-
-            // Deductions
+            const taxableIncome = grossSalary - insurance.employee.total;
             const personalDeduction = config.personalDeduction;
             const dependentDeduction = config.dependentDeduction * dependents;
-            const totalDeduction = personalDeduction + dependentDeduction;
-
-            // Assessable income = Taxable income - Deductions
-            const assessableIncome = Math.max(0, taxableIncome - totalDeduction);
-
-            // Calculate tax
+            const assessableIncome = Math.max(0, taxableIncome - personalDeduction - dependentDeduction);
             const taxResult = calculateTax(assessableIncome);
-
-            // Net salary
-            const netSalary = grossSalary - insurance.total - taxResult.total;
+            const netSalary = grossSalary - insurance.employee.total - taxResult.total;
+            const employerTotal = grossSalary + insurance.employer.total;
 
             return {
                 gross: grossSalary,
@@ -728,37 +644,21 @@
                 assessableIncome,
                 tax: taxResult.total,
                 taxBreakdown: taxResult.breakdown,
-                totalDeduction: insurance.total + taxResult.total
+                employerTotal
             };
         }
 
         function calculateNetToGross(targetNet, region, dependents, hasInsurance) {
-            // Use binary search to find gross
             let low = targetNet;
             let high = targetNet * 2;
-            let result = null;
-
             for (let i = 0; i < 100; i++) {
                 const mid = (low + high) / 2;
                 const calc = calculateGrossToNet(mid, region, dependents, hasInsurance);
-
-                if (Math.abs(calc.net - targetNet) < 1) {
-                    result = calc;
-                    break;
-                }
-
-                if (calc.net < targetNet) {
-                    low = mid;
-                } else {
-                    high = mid;
-                }
+                if (Math.abs(calc.net - targetNet) < 1) return calc;
+                if (calc.net < targetNet) low = mid;
+                else high = mid;
             }
-
-            if (!result) {
-                result = calculateGrossToNet((low + high) / 2, region, dependents, hasInsurance);
-            }
-
-            return result;
+            return calculateGrossToNet((low + high) / 2, region, dependents, hasInsurance);
         }
 
         function calculate() {
@@ -772,75 +672,61 @@
                 return;
             }
 
-            let result;
-            if (currentCalcType === 'gross') {
-                result = calculateGrossToNet(salary, region, dependents, hasInsurance);
-            } else {
-                result = calculateNetToGross(salary, region, dependents, hasInsurance);
-            }
+            const result = currentCalcType === 'gross'
+                ? calculateGrossToNet(salary, region, dependents, hasInsurance)
+                : calculateNetToGross(salary, region, dependents, hasInsurance);
 
             displayResult(result);
         }
 
         function displayResult(result) {
-            const config = CONFIG[currentLaw];
-
-            // Update law badge
             document.getElementById('lawBadge').textContent = currentLaw === '2025' ? 'Luật từ 01/07/2025' : 'Luật từ 01/01/2026';
 
             // Summary
-            document.getElementById('resultGross').textContent = formatCurrency(result.gross);
-            document.getElementById('resultNet').textContent = formatCurrency(result.net);
-            document.getElementById('resultDeduction').textContent = formatCurrency(result.totalDeduction);
+            document.getElementById('sumGross').textContent = formatCurrency(result.gross);
+            document.getElementById('sumInsurance').textContent = '- ' + formatCurrency(result.insurance.employee.total);
+            document.getElementById('sumTax').textContent = result.tax > 0 ? '- ' + formatCurrency(result.tax) : '0';
+            document.getElementById('sumNet').textContent = formatCurrency(result.net);
 
-            // Insurance details
-            document.getElementById('resultBHXH').textContent = formatCurrency(result.insurance.bhxh);
-            document.getElementById('resultBHYT').textContent = formatCurrency(result.insurance.bhyt);
-            document.getElementById('resultBHTN').textContent = formatCurrency(result.insurance.bhtn);
-            document.getElementById('resultTotalInsurance').textContent = formatCurrency(result.insurance.total);
+            // Detail Table
+            const detailBody = document.getElementById('detailBody');
+            detailBody.innerHTML = `
+                <tr><td>Lương GROSS</td><td>${formatCurrency(result.gross)}</td></tr>
+                <tr><td>Bảo hiểm xã hội (8%)</td><td class="value-negative">- ${formatCurrency(result.insurance.employee.bhxh)}</td></tr>
+                <tr><td>Bảo hiểm y tế (1.5%)</td><td class="value-negative">- ${formatCurrency(result.insurance.employee.bhyt)}</td></tr>
+                <tr><td>Bảo hiểm thất nghiệp (1%)</td><td class="value-negative">- ${formatCurrency(result.insurance.employee.bhtn)}</td></tr>
+                <tr class="subtotal"><td>Thu nhập trước thuế</td><td>${formatCurrency(result.taxableIncome)}</td></tr>
+                <tr><td>Giảm trừ gia cảnh bản thân</td><td class="value-negative">- ${formatCurrency(result.personalDeduction)}</td></tr>
+                <tr><td>Giảm trừ gia cảnh người phụ thuộc</td><td class="${result.dependentDeduction > 0 ? 'value-negative' : 'value-zero'}">${result.dependentDeduction > 0 ? '- ' + formatCurrency(result.dependentDeduction) : '0'}</td></tr>
+                <tr class="subtotal"><td>Thu nhập chịu thuế</td><td>${formatCurrency(result.assessableIncome)}</td></tr>
+                <tr><td>Thuế thu nhập cá nhân(*)</td><td class="${result.tax > 0 ? 'value-negative' : 'value-zero'}">${result.tax > 0 ? '- ' + formatCurrency(result.tax) : '0'}</td></tr>
+                <tr><td style="padding-left: 24px; color: var(--text-secondary); font-size: 0.85rem;">(Thu nhập trước thuế - Thuế thu nhập cá nhân.)</td><td></td></tr>
+                <tr class="total-row"><td>Lương NET</td><td>${formatCurrency(result.net)}</td></tr>
+            `;
 
-            // Tax details
-            document.getElementById('resultTaxableIncome').textContent = formatCurrency(result.taxableIncome);
-            document.getElementById('resultPersonalDeduction').textContent = formatCurrency(result.personalDeduction);
-            document.getElementById('resultDependentDeduction').textContent = formatCurrency(result.dependentDeduction);
-            document.getElementById('resultAssessableIncome').textContent = formatCurrency(result.assessableIncome);
-            document.getElementById('resultTax').textContent = formatCurrency(result.tax);
+            // Tax Detail
+            const taxDetailBody = document.getElementById('taxDetailBody');
+            taxDetailBody.innerHTML = result.taxBreakdown.map(b => `
+                <tr>
+                    <td>${b.label}</td>
+                    <td>${(b.rate * 100)}%</td>
+                    <td class="${b.tax > 0 ? '' : 'value-zero'}">${formatCurrency(b.tax)}</td>
+                </tr>
+            `).join('');
 
-            // Tax breakdown table
-            const tbody = document.getElementById('taxBreakdownBody');
-            tbody.innerHTML = '';
+            // Employer Cost
+            const employerBody = document.getElementById('employerBody');
+            employerBody.innerHTML = `
+                <tr><td>Lương GROSS</td><td>${formatCurrency(result.gross)}</td></tr>
+                <tr><td>Bảo hiểm xã hội (17%)</td><td>${formatCurrency(result.insurance.employer.bhxh)}</td></tr>
+                <tr><td>Bảo hiểm Tai nạn lao động - Bệnh nghề nghiệp (0.5%)</td><td>${formatCurrency(result.insurance.employer.bhtnld)}</td></tr>
+                <tr><td>Bảo hiểm y tế (3%)</td><td>${formatCurrency(result.insurance.employer.bhyt)}</td></tr>
+                <tr><td>Bảo hiểm thất nghiệp (1%)</td><td>${formatCurrency(result.insurance.employer.bhtn)}</td></tr>
+                <tr class="subtotal"><td><strong>Tổng cộng</strong></td><td><strong>${formatCurrency(result.employerTotal)}</strong></td></tr>
+            `;
 
-            if (result.taxBreakdown.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-secondary);">Không phải nộp thuế TNCN</td></tr>';
-            } else {
-                result.taxBreakdown.forEach((bracket, index) => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${index + 1}</td>
-                        <td>${(bracket.from / 1000000).toFixed(1)} - ${bracket.to === Infinity ? '∞' : (bracket.to / 1000000).toFixed(1)}</td>
-                        <td>${(bracket.rate * 100)}%</td>
-                        <td>${formatCurrency(bracket.tax)}</td>
-                    `;
-                    tbody.appendChild(row);
-                });
-            }
-
-            // Update notes
-            document.getElementById('notePersonal').textContent = (config.personalDeduction / 1000000) + ' triệu';
-            document.getElementById('noteDependent').textContent = (config.dependentDeduction / 1000000) + ' triệu';
-            document.getElementById('noteMaxInsurance').textContent = ((config.referenceWage * 20) / 1000000) + ' triệu';
-
-            // Show result section
             document.getElementById('resultSection').classList.add('show');
             document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function toggleDetails() {
-            const details = document.getElementById('detailsSection');
-            const icon = document.getElementById('toggleIcon');
-
-            details.classList.toggle('show');
-            icon.textContent = details.classList.contains('show') ? '▲' : '▼';
         }
 
         function resetForm() {
@@ -849,8 +735,6 @@
             document.getElementById('dependents').value = '0';
             document.getElementById('insurance').value = 'full';
             document.getElementById('resultSection').classList.remove('show');
-            document.getElementById('detailsSection').classList.remove('show');
-            document.getElementById('toggleIcon').textContent = '▼';
         }
     </script>
 </body>
