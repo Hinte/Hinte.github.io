@@ -44,9 +44,32 @@
             margin: 0 auto;
         }
 
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .lang-btn {
+            background: var(--table-header-bg);
+            border: 1px solid var(--table-border);
+            color: var(--text-color);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background 0.3s;
+        }
+
+        .lang-btn:hover {
+            background: var(--progress-fill);
+            color: white;
+        }
+
         h1 {
             font-size: 2.5rem;
-            margin-bottom: 1rem;
+            margin-bottom: 0;
         }
 
         h2 {
@@ -63,6 +86,12 @@
 
         a:hover {
             text-decoration: underline;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
         }
 
         .toc {
@@ -189,34 +218,46 @@
             .progress-cell {
                 min-width: 120px;
             }
+
+            .header-container {
+                flex-direction: column;
+                gap: 10px;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>Android API Levels</h1>
+    <a href="/" class="back-link" data-lang="back">&larr; Back to Home</a>
 
-    <p>A quick reference table of Android versions with API level, version code, codename, and cumulative usage.</p>
+    <div class="header-container">
+        <h1>Android API Levels</h1>
+        <button class="lang-btn" onclick="toggleLang()">
+            <span id="lang-text">VI</span>
+        </button>
+    </div>
+
+    <p data-lang="intro">A quick reference table of Android versions with API level, version code, codename, and cumulative usage.</p>
 
     <nav class="toc">
-        <strong>Contents</strong>
+        <strong data-lang="contents">Contents</strong>
         <ul>
-            <li><a href="#api-levels">API Levels Table</a></li>
-            <li><a href="#definitions">Definitions</a></li>
-            <li><a href="#notes">Notes</a></li>
+            <li><a href="#api-levels" data-lang="toc-api">API Levels Table</a></li>
+            <li><a href="#definitions" data-lang="toc-def">Definitions</a></li>
+            <li><a href="#notes" data-lang="toc-notes">Notes</a></li>
         </ul>
     </nav>
 
-    <h2 id="api-levels">API Levels Table</h2>
+    <h2 id="api-levels" data-lang="h2-api">API Levels Table</h2>
 
     <table>
         <thead>
             <tr>
-                <th>Version</th>
+                <th data-lang="th-version">Version</th>
                 <th>API Level</th>
                 <th>Version Code</th>
                 <th>Codename</th>
-                <th class="progress-cell">Cumulative Usage</th>
-                <th>Year</th>
+                <th class="progress-cell" data-lang="th-usage">Cumulative Usage</th>
+                <th data-lang="th-year">Year</th>
             </tr>
         </thead>
         <tbody>
@@ -749,7 +790,7 @@
                 <td class="version-name">Android 1.0</td>
                 <td>1</td>
                 <td><code>BASE</code></td>
-                <td>—</td>
+                <td>-</td>
                 <td class="progress-cell">
                     <div class="progress-bar">
                         <div class="progress-track">
@@ -763,31 +804,101 @@
         </tbody>
     </table>
 
-    <h2 id="definitions">Definitions</h2>
+    <h2 id="definitions" data-lang="h2-def">Definitions</h2>
 
     <dl class="definitions">
         <dt><code>minSdk</code></dt>
-        <dd>The minimum API level required for your app to run. Devices with lower API levels cannot install the app.</dd>
+        <dd data-lang="def-minsdk">The minimum API level required for your app to run. Devices with lower API levels cannot install the app.</dd>
 
         <dt><code>targetSdk</code></dt>
-        <dd>The API level your app is designed and tested against. This enables compatibility behaviors on newer Android versions.</dd>
+        <dd data-lang="def-targetsdk">The API level your app is designed and tested against. This enables compatibility behaviors on newer Android versions.</dd>
 
         <dt><code>compileSdk</code></dt>
-        <dd>The API level used to compile your app. This determines which Android APIs are available during development.</dd>
+        <dd data-lang="def-compilesdk">The API level used to compile your app. This determines which Android APIs are available during development.</dd>
 
         <dt><code>Build.VERSION.SDK_INT</code></dt>
-        <dd>A runtime constant representing the API level of the device running your app. Use this to conditionally execute code based on the device's Android version.</dd>
+        <dd data-lang="def-sdkint">A runtime constant representing the API level of the device running your app. Use this to conditionally execute code based on the device's Android version.</dd>
     </dl>
 
-    <h2 id="notes">Notes</h2>
+    <h2 id="notes" data-lang="h2-notes">Notes</h2>
 
     <div class="note">
-        <p><strong>Cumulative Usage</strong> represents the percentage of devices running that API level or higher. Data is based on devices visiting the Google Play Store.</p>
-        <p><strong>Version Code</strong> constants are available in <code>android.os.Build.VERSION_CODES</code>.</p>
+        <p><strong data-lang="note-usage-title">Cumulative Usage</strong> <span data-lang="note-usage">represents the percentage of devices running that API level or higher. Data is based on devices visiting the Google Play Store.</span></p>
+        <p><strong>Version Code</strong> <span data-lang="note-versioncode">constants are available in</span> <code>android.os.Build.VERSION_CODES</code>.</p>
     </div>
 
     <footer style="margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--table-border); color: #888; font-size: 0.85rem;">
         <p>Reference: <a href="https://apilevels.com/">apilevels.com</a> | <a href="https://developer.android.com/guide/topics/manifest/uses-sdk-element">Android Documentation</a></p>
     </footer>
+
+    <script>
+        const translations = {
+            en: {
+                'back': '← Back to Home',
+                'intro': 'A quick reference table of Android versions with API level, version code, codename, and cumulative usage.',
+                'contents': 'Contents',
+                'toc-api': 'API Levels Table',
+                'toc-def': 'Definitions',
+                'toc-notes': 'Notes',
+                'h2-api': 'API Levels Table',
+                'h2-def': 'Definitions',
+                'h2-notes': 'Notes',
+                'th-version': 'Version',
+                'th-usage': 'Cumulative Usage',
+                'th-year': 'Year',
+                'def-minsdk': 'The minimum API level required for your app to run. Devices with lower API levels cannot install the app.',
+                'def-targetsdk': 'The API level your app is designed and tested against. This enables compatibility behaviors on newer Android versions.',
+                'def-compilesdk': 'The API level used to compile your app. This determines which Android APIs are available during development.',
+                'def-sdkint': 'A runtime constant representing the API level of the device running your app. Use this to conditionally execute code based on the device\'s Android version.',
+                'note-usage-title': 'Cumulative Usage',
+                'note-usage': 'represents the percentage of devices running that API level or higher. Data is based on devices visiting the Google Play Store.',
+                'note-versioncode': 'constants are available in'
+            },
+            vi: {
+                'back': '← Quay lại Trang chủ',
+                'intro': 'Bảng tra cứu nhanh các phiên bản Android với API level, version code, codename và tỷ lệ sử dụng tích lũy.',
+                'contents': 'Mục lục',
+                'toc-api': 'Bảng API Levels',
+                'toc-def': 'Định nghĩa',
+                'toc-notes': 'Ghi chú',
+                'h2-api': 'Bảng API Levels',
+                'h2-def': 'Định nghĩa',
+                'h2-notes': 'Ghi chú',
+                'th-version': 'Phiên bản',
+                'th-usage': 'Tỷ lệ sử dụng tích lũy',
+                'th-year': 'Năm',
+                'def-minsdk': 'API level tối thiểu để ứng dụng của bạn chạy được. Thiết bị có API level thấp hơn không thể cài đặt ứng dụng.',
+                'def-targetsdk': 'API level mà ứng dụng của bạn được thiết kế và kiểm thử. Điều này cho phép các hành vi tương thích trên các phiên bản Android mới hơn.',
+                'def-compilesdk': 'API level dùng để biên dịch ứng dụng của bạn. Điều này xác định những API Android nào có sẵn trong quá trình phát triển.',
+                'def-sdkint': 'Hằng số runtime đại diện cho API level của thiết bị đang chạy ứng dụng của bạn. Sử dụng để thực thi code có điều kiện dựa trên phiên bản Android của thiết bị.',
+                'note-usage-title': 'Tỷ lệ sử dụng tích lũy',
+                'note-usage': 'đại diện cho phần trăm thiết bị chạy API level đó hoặc cao hơn. Dữ liệu dựa trên các thiết bị truy cập Google Play Store.',
+                'note-versioncode': 'các hằng số có sẵn trong'
+            }
+        };
+
+        let currentLang = localStorage.getItem('lang') || 'vi';
+
+        function setLang(lang) {
+            currentLang = lang;
+            localStorage.setItem('lang', lang);
+            document.documentElement.lang = lang;
+            document.getElementById('lang-text').textContent = lang === 'vi' ? 'EN' : 'VI';
+
+            document.querySelectorAll('[data-lang]').forEach(el => {
+                const key = el.getAttribute('data-lang');
+                if (translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+        }
+
+        function toggleLang() {
+            setLang(currentLang === 'vi' ? 'en' : 'vi');
+        }
+
+        // Initialize
+        setLang(currentLang);
+    </script>
 </body>
 </html>

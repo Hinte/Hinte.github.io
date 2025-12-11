@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tạo Hình AI</title>
+    <title>Tao Hinh AI</title>
     <style>
         * {
             margin: 0;
@@ -27,6 +27,39 @@
         header {
             text-align: center;
             margin-bottom: 40px;
+            position: relative;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .back-link {
+            color: #a0aec0;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .back-link:hover {
+            color: white;
+        }
+
+        .lang-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background 0.3s;
+        }
+
+        .lang-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
         }
 
         h1 {
@@ -230,31 +263,43 @@
                 padding: 14px 24px;
                 font-size: 1rem;
             }
+
+            .header-top {
+                flex-direction: column;
+                gap: 10px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Tạo Hình AI</h1>
-            <p class="subtitle">Nhập mô tả bằng tiếng Việt để tạo hình ảnh bằng AI</p>
+            <div class="header-top">
+                <a href="/" class="back-link" data-lang="back">&larr; Quay lai trang chu</a>
+                <button class="lang-btn" onclick="toggleLang()">
+                    <span id="lang-text">EN</span>
+                </button>
+            </div>
+            <h1 data-lang="title">Tao Hinh AI</h1>
+            <p class="subtitle" data-lang="subtitle">Nhap mo ta bang tieng Viet de tao hinh anh bang AI</p>
         </header>
 
         <div class="input-section">
-            <label for="prompt">Mô tả hình ảnh bạn muốn tạo:</label>
+            <label for="prompt" data-lang="label">Mo ta hinh anh ban muon tao:</label>
             <textarea
                 id="prompt"
-                placeholder="Ví dụ: Một chú mèo cam đang nằm trên ghế sofa màu xanh, ánh sáng mặt trời chiếu qua cửa sổ..."
+                data-lang-placeholder="placeholder"
+                placeholder="Vi du: Mot chu meo cam dang nam tren ghe sofa mau xanh, anh sang mat troi chieu qua cua so..."
                 maxlength="1000"
             ></textarea>
             <div class="char-count"><span id="charCount">0</span>/1000</div>
 
-            <button class="generate-btn" id="generateBtn" onclick="generateImage()">
-                Tạo Hình
+            <button class="generate-btn" id="generateBtn" onclick="generateImage()" data-lang="generate">
+                Tao Hinh
             </button>
 
             <div class="shortcut-hint">
-                Nhấn <kbd>Ctrl</kbd> + <kbd>Enter</kbd> để tạo hình
+                <span data-lang="shortcut-hint">Nhan</span> <kbd>Ctrl</kbd> + <kbd>Enter</kbd> <span data-lang="shortcut-hint2">de tao hinh</span>
             </div>
 
             <div class="error-message" id="errorMessage"></div>
@@ -262,20 +307,84 @@
 
         <div class="loading" id="loading">
             <div class="spinner"></div>
-            <p class="loading-text">Đang tạo hình ảnh, vui lòng đợi...</p>
+            <p class="loading-text" data-lang="loading">Dang tao hinh anh, vui long doi...</p>
         </div>
 
         <div class="result-section" id="resultSection">
-            <h2>Hình ảnh đã tạo</h2>
+            <h2 data-lang="result-title">Hinh anh da tao</h2>
             <img id="generatedImage" class="generated-image" src="" alt="Generated Image">
             <br>
-            <a id="downloadBtn" class="download-btn" href="" download="ai-generated-image.png">
-                Tải về
+            <a id="downloadBtn" class="download-btn" href="" download="ai-generated-image.png" data-lang="download">
+                Tai ve
             </a>
         </div>
     </div>
 
     <script>
+        const translations = {
+            vi: {
+                'back': '← Quay lại trang chủ',
+                'title': 'Tạo Hình AI',
+                'subtitle': 'Nhập mô tả bằng tiếng Việt để tạo hình ảnh bằng AI',
+                'label': 'Mô tả hình ảnh bạn muốn tạo:',
+                'placeholder': 'Ví dụ: Một chú mèo cam đang nằm trên ghế sofa màu xanh, ánh sáng mặt trời chiếu qua cửa sổ...',
+                'generate': 'Tạo Hình',
+                'shortcut-hint': 'Nhấn',
+                'shortcut-hint2': 'để tạo hình',
+                'loading': 'Đang tạo hình ảnh, vui lòng đợi...',
+                'result-title': 'Hình ảnh đã tạo',
+                'download': 'Tải về',
+                'error-empty': 'Vui lòng nhập mô tả hình ảnh.',
+                'error-long': 'Mô tả không được vượt quá 1000 ký tự.',
+                'error-generate': 'Không thể tạo hình ảnh. Vui lòng thử lại.',
+                'error-general': 'Đã xảy ra lỗi. Vui lòng thử lại sau.'
+            },
+            en: {
+                'back': '← Back to Home',
+                'title': 'AI Image Generator',
+                'subtitle': 'Enter a description to generate images using AI',
+                'label': 'Describe the image you want to create:',
+                'placeholder': 'Example: An orange cat lying on a blue sofa, sunlight streaming through the window...',
+                'generate': 'Generate',
+                'shortcut-hint': 'Press',
+                'shortcut-hint2': 'to generate',
+                'loading': 'Generating image, please wait...',
+                'result-title': 'Generated Image',
+                'download': 'Download',
+                'error-empty': 'Please enter an image description.',
+                'error-long': 'Description cannot exceed 1000 characters.',
+                'error-generate': 'Unable to generate image. Please try again.',
+                'error-general': 'An error occurred. Please try again later.'
+            }
+        };
+
+        let currentLang = localStorage.getItem('lang') || 'vi';
+
+        function setLang(lang) {
+            currentLang = lang;
+            localStorage.setItem('lang', lang);
+            document.documentElement.lang = lang;
+            document.getElementById('lang-text').textContent = lang === 'vi' ? 'EN' : 'VI';
+
+            document.querySelectorAll('[data-lang]').forEach(el => {
+                const key = el.getAttribute('data-lang');
+                if (translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+
+            document.querySelectorAll('[data-lang-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-lang-placeholder');
+                if (translations[lang][key]) {
+                    el.placeholder = translations[lang][key];
+                }
+            });
+        }
+
+        function toggleLang() {
+            setLang(currentLang === 'vi' ? 'en' : 'vi');
+        }
+
         const promptInput = document.getElementById('prompt');
         const charCount = document.getElementById('charCount');
         const generateBtn = document.getElementById('generateBtn');
@@ -326,12 +435,12 @@
 
             // Validation
             if (!prompt) {
-                showError('Vui lòng nhập mô tả hình ảnh.');
+                showError(translations[currentLang]['error-empty']);
                 return;
             }
 
             if (prompt.length > 1000) {
-                showError('Mô tả không được vượt quá 1000 ký tự.');
+                showError(translations[currentLang]['error-long']);
                 return;
             }
 
@@ -372,7 +481,7 @@
                 img.onerror = () => {
                     loading.classList.remove('show');
                     generateBtn.disabled = false;
-                    showError('Không thể tạo hình ảnh. Vui lòng thử lại.');
+                    showError(translations[currentLang]['error-generate']);
                 };
 
                 img.src = imageUrl;
@@ -380,7 +489,7 @@
             } catch (error) {
                 loading.classList.remove('show');
                 generateBtn.disabled = false;
-                showError('Đã xảy ra lỗi. Vui lòng thử lại sau.');
+                showError(translations[currentLang]['error-general']);
                 console.error('Error:', error);
             }
         }
@@ -393,6 +502,9 @@
         function hideError() {
             errorMessage.classList.remove('show');
         }
+
+        // Initialize
+        setLang(currentLang);
     </script>
 </body>
 </html>

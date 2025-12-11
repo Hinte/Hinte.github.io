@@ -216,15 +216,20 @@
 <body>
     <div class="container">
         <header>
-            <a href="/" class="back-link">&larr; Quay lại trang chủ</a>
-            <h1>Tính Phần Trăm</h1>
-            <p>Nhập số lượng và xem tỉ lệ phần trăm tự động</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <a href="/" class="back-link" data-lang="back">&larr; Quay lại trang chủ</a>
+                <button onclick="toggleLang()" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 0.85rem;">
+                    <span id="lang-text">EN</span>
+                </button>
+            </div>
+            <h1 data-lang="title">Tính Phần Trăm</h1>
+            <p data-lang="subtitle">Nhập số lượng và xem tỉ lệ phần trăm tự động</p>
         </header>
 
         <div class="tables-container">
             <!-- Table 1: 4 columns (A, B, C, D) -->
             <div class="input-section">
-                <h2>MỨC ĐẠT ĐƯỢC</h2>
+                <h2 data-lang="table-title">MỨC ĐẠT ĐƯỢC</h2>
                 <table class="input-table">
                     <thead>
                         <tr>
@@ -237,14 +242,14 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td class="row-header" style="font-weight: bold;">SỐ LƯỢNG</td>
+                            <td class="row-header" style="font-weight: bold;" data-lang="quantity">SỐ LƯỢNG</td>
                             <td><input type="number" id="t1-a" min="0" value="0" onchange="calculate()"></td>
                             <td><input type="number" id="t1-b" min="0" value="0" onchange="calculate()"></td>
                             <td><input type="number" id="t1-c" min="0" value="0" onchange="calculate()"></td>
                             <td><input type="number" id="t1-d" min="0" value="0" onchange="calculate()"></td>
                         </tr>
                         <tr>
-                            <td class="row-header" style="font-weight: bold;">TỈ LỆ</td>
+                            <td class="row-header" style="font-weight: bold;" data-lang="ratio">TỈ LỆ</td>
                             <td class="result-cell" id="t1-a-pct">0%</td>
                             <td class="result-cell" id="t1-b-pct">0%</td>
                             <td class="result-cell" id="t1-c-pct">0%</td>
@@ -256,7 +261,7 @@
 
             <!-- Table 2: 3 columns (A, B, C) -->
             <div class="input-section">
-                <h2>MỨC ĐẠT ĐƯỢC</h2>
+                <h2 data-lang="table-title">MỨC ĐẠT ĐƯỢC</h2>
                 <table class="input-table">
                     <thead>
                         <tr>
@@ -268,13 +273,13 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td class="row-header" style="font-weight: bold;">SỐ LƯỢNG</td>
+                            <td class="row-header" style="font-weight: bold;" data-lang="quantity">SỐ LƯỢNG</td>
                             <td><input type="number" id="t2-a" min="0" value="0" onchange="calculate()"></td>
                             <td><input type="number" id="t2-b" min="0" value="0" onchange="calculate()"></td>
                             <td><input type="number" id="t2-c" min="0" value="0" onchange="calculate()"></td>
                         </tr>
                         <tr>
-                            <td class="row-header" style="font-weight: bold;">TỈ LỆ</td>
+                            <td class="row-header" style="font-weight: bold;" data-lang="ratio">TỈ LỆ</td>
                             <td class="result-cell" id="t2-a-pct">0%</td>
                             <td class="result-cell" id="t2-b-pct">0%</td>
                             <td class="result-cell" id="t2-c-pct">0%</td>
@@ -285,17 +290,17 @@
         </div>
 
         <div class="total-display">
-            <p>Tổng số lượng Bảng 1: <span id="total1">0</span> | Tổng số lượng Bảng 2: <span id="total2">0</span></p>
+            <p><span data-lang="total1">Tổng số lượng Bảng 1</span>: <span id="total1">0</span> | <span data-lang="total2">Tổng số lượng Bảng 2</span>: <span id="total2">0</span></p>
         </div>
 
         <!-- Lookup Table -->
         <div class="lookup-section">
-            <h2>BẢNG TRA CỨU PHẦN TRĂM</h2>
+            <h2 data-lang="lookup-title">BẢNG TRA CỨU PHẦN TRĂM</h2>
             <div style="overflow-x: auto;">
                 <table class="lookup-table" id="lookup-table">
                     <thead>
                         <tr>
-                            <th class="corner">Tử số \ Mẫu số</th>
+                            <th class="corner" data-lang="lookup-corner">Tử số \ Mẫu số</th>
                             <th>20</th>
                             <th>21</th>
                             <th>22</th>
@@ -435,6 +440,57 @@
         document.querySelectorAll('input[type="number"]').forEach(input => {
             input.addEventListener('input', calculate);
         });
+
+        // i18n
+        const translations = {
+            vi: {
+                'back': '← Quay lại trang chủ',
+                'title': 'Tính Phần Trăm',
+                'subtitle': 'Nhập số lượng và xem tỉ lệ phần trăm tự động',
+                'table-title': 'MỨC ĐẠT ĐƯỢC',
+                'quantity': 'SỐ LƯỢNG',
+                'ratio': 'TỈ LỆ',
+                'total1': 'Tổng số lượng Bảng 1',
+                'total2': 'Tổng số lượng Bảng 2',
+                'lookup-title': 'BẢNG TRA CỨU PHẦN TRĂM',
+                'lookup-corner': 'Tử số \\ Mẫu số'
+            },
+            en: {
+                'back': '← Back to Home',
+                'title': 'Percentage Calculator',
+                'subtitle': 'Enter quantities and see percentages automatically',
+                'table-title': 'ACHIEVEMENT LEVEL',
+                'quantity': 'QUANTITY',
+                'ratio': 'RATIO',
+                'total1': 'Total Table 1',
+                'total2': 'Total Table 2',
+                'lookup-title': 'PERCENTAGE LOOKUP TABLE',
+                'lookup-corner': 'Numerator \\ Denominator'
+            }
+        };
+
+        let currentLang = localStorage.getItem('lang') || 'vi';
+
+        function setLang(lang) {
+            currentLang = lang;
+            localStorage.setItem('lang', lang);
+            document.documentElement.lang = lang;
+            document.getElementById('lang-text').textContent = lang === 'vi' ? 'EN' : 'VI';
+
+            document.querySelectorAll('[data-lang]').forEach(el => {
+                const key = el.getAttribute('data-lang');
+                if (translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+        }
+
+        function toggleLang() {
+            setLang(currentLang === 'vi' ? 'en' : 'vi');
+        }
+
+        // Initialize language
+        setLang(currentLang);
     </script>
 </body>
 </html>

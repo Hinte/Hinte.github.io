@@ -311,7 +311,12 @@
 <body>
     <div class="container">
         <header>
-            <a href="/" class="back-link">&larr; Quay lai trang chu</a>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <a href="/" class="back-link" data-lang="back">&larr; Quay lại trang chủ</a>
+                <button onclick="toggleLang()" style="background: #667eea; border: none; color: white; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 0.85rem;">
+                    <span id="lang-text">EN</span>
+                </button>
+            </div>
             <h1>Barcode Generator</h1>
         </header>
 
@@ -329,10 +334,10 @@
         <div class="main-content">
             <div class="input-panel">
                 <h2 id="panel-title">QR Code</h2>
-                <label for="data-input">Data</label>
-                <textarea id="data-input" placeholder="Nhap noi dung..." oninput="generateBarcode()">Hello World</textarea>
+                <label for="data-input" data-lang="data-label">Data</label>
+                <textarea id="data-input" data-lang-placeholder="data-placeholder" placeholder="Nhập nội dung..." oninput="generateBarcode()">Hello World</textarea>
                 <div class="refresh-link">
-                    <a onclick="generateBarcode()">Refresh</a>
+                    <a onclick="generateBarcode()" data-lang="refresh">Refresh</a>
                 </div>
             </div>
 
@@ -346,7 +351,7 @@
                     <svg viewBox="0 0 24 24" fill="currentColor">
                         <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
                     </svg>
-                    Download
+                    <span data-lang="download">Download</span>
                 </button>
             </div>
         </div>
@@ -355,26 +360,26 @@
     <!-- Settings Modal -->
     <div class="modal-overlay" id="settings-modal">
         <div class="modal">
-            <h3>Settings</h3>
+            <h3 data-lang="settings">Settings</h3>
             <div class="modal-field">
-                <label>Width</label>
+                <label data-lang="width">Width</label>
                 <input type="number" id="setting-width" value="300" min="100" max="1000">
             </div>
             <div class="modal-field">
-                <label>Height</label>
+                <label data-lang="height">Height</label>
                 <input type="number" id="setting-height" value="300" min="100" max="1000">
             </div>
             <div class="modal-field">
-                <label>Background Color</label>
+                <label data-lang="bg-color">Background Color</label>
                 <input type="color" id="setting-bg" value="#ffffff">
             </div>
             <div class="modal-field">
-                <label>Foreground Color</label>
+                <label data-lang="fg-color">Foreground Color</label>
                 <input type="color" id="setting-fg" value="#000000">
             </div>
             <div class="modal-buttons">
-                <button class="btn-cancel" onclick="closeSettings()">Cancel</button>
-                <button class="btn-apply" onclick="applySettings()">Apply</button>
+                <button class="btn-cancel" onclick="closeSettings()" data-lang="cancel">Cancel</button>
+                <button class="btn-apply" onclick="applySettings()" data-lang="apply">Apply</button>
             </div>
         </div>
     </div>
@@ -583,6 +588,121 @@
 
         // Initialize
         generateBarcode();
+
+        // i18n
+        const translations = {
+            vi: {
+                'back': '← Quay lại trang chủ',
+                'data-label': 'Dữ liệu',
+                'data-placeholder': 'Nhập nội dung...',
+                'refresh': 'Làm mới',
+                'download': 'Tải về',
+                'settings': 'Cài đặt',
+                'width': 'Chiều rộng',
+                'height': 'Chiều cao',
+                'bg-color': 'Màu nền',
+                'fg-color': 'Màu mã vạch',
+                'cancel': 'Hủy',
+                'apply': 'Áp dụng',
+                'error': 'Lỗi',
+                'placeholder-ean13': 'Nhập 12-13 số (VD: 5901234123457)',
+                'placeholder-ean8': 'Nhập 7-8 số (VD: 96385074)',
+                'placeholder-upc': 'Nhập 11-12 số (VD: 012345678905)',
+                'placeholder-code39': 'Nhập chữ và số (A-Z, 0-9, -, ., $, /, +, %, space)',
+                'placeholder-code128': 'Nhập nội dung bất kỳ',
+                'placeholder-default': 'Nhập nội dung...'
+            },
+            en: {
+                'back': '← Back to Home',
+                'data-label': 'Data',
+                'data-placeholder': 'Enter content...',
+                'refresh': 'Refresh',
+                'download': 'Download',
+                'settings': 'Settings',
+                'width': 'Width',
+                'height': 'Height',
+                'bg-color': 'Background Color',
+                'fg-color': 'Foreground Color',
+                'cancel': 'Cancel',
+                'apply': 'Apply',
+                'error': 'Error',
+                'placeholder-ean13': 'Enter 12-13 digits (e.g.: 5901234123457)',
+                'placeholder-ean8': 'Enter 7-8 digits (e.g.: 96385074)',
+                'placeholder-upc': 'Enter 11-12 digits (e.g.: 012345678905)',
+                'placeholder-code39': 'Enter letters and numbers (A-Z, 0-9, -, ., $, /, +, %, space)',
+                'placeholder-code128': 'Enter any content',
+                'placeholder-default': 'Enter content...'
+            }
+        };
+
+        let currentLang = localStorage.getItem('lang') || 'vi';
+
+        function setLang(lang) {
+            currentLang = lang;
+            localStorage.setItem('lang', lang);
+            document.documentElement.lang = lang;
+            document.getElementById('lang-text').textContent = lang === 'vi' ? 'EN' : 'VI';
+
+            document.querySelectorAll('[data-lang]').forEach(el => {
+                const key = el.getAttribute('data-lang');
+                if (translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+
+            document.querySelectorAll('[data-lang-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-lang-placeholder');
+                if (translations[lang][key]) {
+                    el.placeholder = translations[lang][key];
+                }
+            });
+
+            // Update placeholder based on type and language
+            updatePlaceholder();
+        }
+
+        function updatePlaceholder() {
+            const input = document.getElementById('data-input');
+            const t = translations[currentLang];
+            switch(currentType) {
+                case 'ean13': input.placeholder = t['placeholder-ean13']; break;
+                case 'ean8': input.placeholder = t['placeholder-ean8']; break;
+                case 'upc': input.placeholder = t['placeholder-upc']; break;
+                case 'code39': input.placeholder = t['placeholder-code39']; break;
+                case 'code128': input.placeholder = t['placeholder-code128']; break;
+                default: input.placeholder = t['placeholder-default'];
+            }
+        }
+
+        function toggleLang() {
+            setLang(currentLang === 'vi' ? 'en' : 'vi');
+        }
+
+        // Override updateBarcodeType to use translations
+        const originalUpdateBarcodeType = updateBarcodeType;
+        updateBarcodeType = function() {
+            currentType = document.getElementById('barcode-type').value;
+            document.getElementById('panel-title').textContent = typeNames[currentType];
+            updatePlaceholder();
+
+            const input = document.getElementById('data-input');
+            switch(currentType) {
+                case 'ean13':
+                    if (!/^\d{12,13}$/.test(input.value)) input.value = '5901234123457';
+                    break;
+                case 'ean8':
+                    if (!/^\d{7,8}$/.test(input.value)) input.value = '96385074';
+                    break;
+                case 'upc':
+                    if (!/^\d{11,12}$/.test(input.value)) input.value = '012345678905';
+                    break;
+            }
+
+            generateBarcode();
+        };
+
+        // Initialize language
+        setLang(currentLang);
     </script>
 </body>
 </html>

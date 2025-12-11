@@ -29,6 +29,27 @@
             margin-bottom: 50px;
         }
 
+        .lang-switch {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .lang-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+        }
+
+        .lang-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
         h1 {
             font-size: 2.5rem;
             margin-bottom: 10px;
@@ -92,47 +113,109 @@
             .tool-card {
                 padding: 24px;
             }
+
+            .lang-switch {
+                position: static;
+                text-align: center;
+                margin-bottom: 20px;
+            }
         }
     </style>
 </head>
 <body>
+    <div class="lang-switch">
+        <button class="lang-btn" onclick="toggleLang()">
+            <span id="lang-text">EN</span>
+        </button>
+    </div>
+
     <div class="container">
         <header>
             <h1>Hinte's Tools</h1>
-            <p class="subtitle">Bộ sưu tập các công cụ hữu ích</p>
+            <p class="subtitle" data-lang="subtitle">Bo suu tap cac cong cu huu ich</p>
         </header>
 
         <div class="tools-grid">
             <a href="/tools/apilevel/" class="tool-card">
                 <span class="tool-icon">📱</span>
                 <h2 class="tool-title">Android API Levels</h2>
-                <p class="tool-desc">Bảng tra cứu nhanh các phiên bản Android với API level, version code và tỷ lệ sử dụng.</p>
+                <p class="tool-desc" data-lang="api-desc">Bang tra cuu nhanh cac phien ban Android voi API level, version code va ty le su dung.</p>
             </a>
 
             <a href="/tools/img-gen/" class="tool-card">
                 <span class="tool-icon">🎨</span>
-                <h2 class="tool-title">Tạo Hình AI</h2>
-                <p class="tool-desc">Tạo hình ảnh từ mô tả văn bản bằng tiếng Việt sử dụng AI.</p>
+                <h2 class="tool-title" data-lang="img-title">Tao Hinh AI</h2>
+                <p class="tool-desc" data-lang="img-desc">Tao hinh anh tu mo ta van ban bang tieng Viet su dung AI.</p>
             </a>
 
             <a href="/tools/tinhluong/" class="tool-card">
                 <span class="tool-icon">💰</span>
-                <h2 class="tool-title">Tính Lương Gross-Net</h2>
-                <p class="tool-desc">Tính lương Gross sang Net và ngược lại theo pháp luật Việt Nam 2025-2026.</p>
+                <h2 class="tool-title" data-lang="salary-title">Tinh Luong Gross-Net</h2>
+                <p class="tool-desc" data-lang="salary-desc">Tinh luong Gross sang Net va nguoc lai theo phap luat Viet Nam 2025-2026.</p>
             </a>
 
             <a href="/tools/phantram/" class="tool-card">
                 <span class="tool-icon">📊</span>
-                <h2 class="tool-title">Tính Phần Trăm</h2>
-                <p class="tool-desc">Tính tỉ lệ phần trăm theo số lượng và tra cứu bảng phần trăm nhanh.</p>
+                <h2 class="tool-title" data-lang="percent-title">Tinh Phan Tram</h2>
+                <p class="tool-desc" data-lang="percent-desc">Tinh ti le phan tram theo so luong va tra cuu bang phan tram nhanh.</p>
             </a>
 
             <a href="/tools/barcode/" class="tool-card">
                 <span class="tool-icon">📷</span>
                 <h2 class="tool-title">Barcode Generator</h2>
-                <p class="tool-desc">Tạo mã vạch Code 128, Code 39, EAN, UPC và QR Code. Hỗ trợ tải xuống PNG.</p>
+                <p class="tool-desc" data-lang="barcode-desc">Tao ma vach Code 128, Code 39, EAN, UPC va QR Code. Ho tro tai xuong PNG.</p>
             </a>
         </div>
     </div>
+
+    <script>
+        const translations = {
+            vi: {
+                'subtitle': 'Bộ sưu tập các công cụ hữu ích',
+                'api-desc': 'Bảng tra cứu nhanh các phiên bản Android với API level, version code và tỷ lệ sử dụng.',
+                'img-title': 'Tạo Hình AI',
+                'img-desc': 'Tạo hình ảnh từ mô tả văn bản bằng tiếng Việt sử dụng AI.',
+                'salary-title': 'Tính Lương Gross-Net',
+                'salary-desc': 'Tính lương Gross sang Net và ngược lại theo pháp luật Việt Nam 2025-2026.',
+                'percent-title': 'Tính Phần Trăm',
+                'percent-desc': 'Tính tỉ lệ phần trăm theo số lượng và tra cứu bảng phần trăm nhanh.',
+                'barcode-desc': 'Tạo mã vạch Code 128, Code 39, EAN, UPC và QR Code. Hỗ trợ tải xuống PNG.'
+            },
+            en: {
+                'subtitle': 'A collection of useful tools',
+                'api-desc': 'Quick reference table for Android versions with API level, version code and usage rate.',
+                'img-title': 'AI Image Generator',
+                'img-desc': 'Generate images from text descriptions using AI.',
+                'salary-title': 'Gross-Net Salary Calculator',
+                'salary-desc': 'Calculate Gross to Net salary and vice versa according to Vietnam law 2025-2026.',
+                'percent-title': 'Percentage Calculator',
+                'percent-desc': 'Calculate percentage by quantity and quick percentage lookup table.',
+                'barcode-desc': 'Generate Code 128, Code 39, EAN, UPC and QR Code barcodes. PNG download supported.'
+            }
+        };
+
+        let currentLang = localStorage.getItem('lang') || 'vi';
+
+        function setLang(lang) {
+            currentLang = lang;
+            localStorage.setItem('lang', lang);
+            document.documentElement.lang = lang;
+            document.getElementById('lang-text').textContent = lang === 'vi' ? 'EN' : 'VI';
+
+            document.querySelectorAll('[data-lang]').forEach(el => {
+                const key = el.getAttribute('data-lang');
+                if (translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+        }
+
+        function toggleLang() {
+            setLang(currentLang === 'vi' ? 'en' : 'vi');
+        }
+
+        // Initialize
+        setLang(currentLang);
+    </script>
 </body>
 </html>

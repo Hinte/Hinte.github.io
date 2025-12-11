@@ -5,6 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tính Lương Gross - Net</title>
     <style>
+        .lang-switch {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+        .lang-btn {
+            background: var(--accent);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background 0.3s;
+        }
+        .lang-btn:hover {
+            background: var(--accent-hover);
+        }
+        @media (max-width: 600px) {
+            .lang-switch { position: static; text-align: center; margin-bottom: 15px; }
+        }
         :root {
             --bg-primary: #f8fafc;
             --bg-secondary: #ffffff;
@@ -346,18 +368,25 @@
     </style>
 </head>
 <body>
+    <div class="lang-switch">
+        <button class="lang-btn" onclick="toggleLang()">
+            <span id="lang-text">EN</span>
+        </button>
+    </div>
+
     <div class="container">
         <header>
-            <h1>Tính Lương Gross - Net</h1>
-            <p class="subtitle">Công cụ tính lương theo quy định pháp luật Việt Nam</p>
+            <a href="/" style="color: var(--accent); text-decoration: none; font-size: 0.9rem;">&larr; <span data-lang="back">Quay lại trang chủ</span></a>
+            <h1 data-lang="title">Tính Lương Gross - Net</h1>
+            <p class="subtitle" data-lang="subtitle">Công cụ tính lương theo quy định pháp luật Việt Nam</p>
         </header>
 
         <!-- Input Section -->
         <div class="card">
-            <h2 class="card-title">Thông tin đầu vào</h2>
+            <h2 class="card-title" data-lang="input-title">Thông tin đầu vào</h2>
 
             <div class="form-group" style="margin-bottom: 20px;">
-                <label>Chọn quy định áp dụng:</label>
+                <label data-lang="law-label">Chọn quy định áp dụng:</label>
                 <div class="radio-group">
                     <label class="radio-option active" id="law2025-option">
                         <input type="radio" name="law" value="2025" checked onchange="updateLaw()">
@@ -371,7 +400,7 @@
             </div>
 
             <div class="form-group" style="margin-bottom: 20px;">
-                <label>Loại tính toán:</label>
+                <label data-lang="calc-type-label">Loại tính toán:</label>
                 <div class="radio-group">
                     <label class="radio-option active" id="gross-option">
                         <input type="radio" name="calcType" value="gross" checked onchange="updateCalcType()">
@@ -386,37 +415,37 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    <label id="salary-label">Lương Gross (VNĐ):</label>
-                    <input type="text" id="salary" placeholder="Nhập số tiền" oninput="formatNumber(this)">
+                    <label id="salary-label" data-lang="salary-gross">Lương Gross (VNĐ):</label>
+                    <input type="text" id="salary" data-lang-placeholder="salary-placeholder" placeholder="Nhập số tiền" oninput="formatNumber(this)">
                 </div>
                 <div class="form-group">
-                    <label>Vùng lương tối thiểu:</label>
+                    <label data-lang="region-label">Vùng lương tối thiểu:</label>
                     <select id="region">
-                        <option value="1">Vùng 1 (Hà Nội, TP.HCM...)</option>
-                        <option value="2">Vùng 2</option>
-                        <option value="3">Vùng 3</option>
-                        <option value="4">Vùng 4</option>
+                        <option value="1" data-lang="region1">Vùng 1 (Hà Nội, TP.HCM...)</option>
+                        <option value="2" data-lang="region2">Vùng 2</option>
+                        <option value="3" data-lang="region3">Vùng 3</option>
+                        <option value="4" data-lang="region4">Vùng 4</option>
                     </select>
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
-                    <label>Số người phụ thuộc:</label>
+                    <label data-lang="dependents-label">Số người phụ thuộc:</label>
                     <input type="number" id="dependents" value="0" min="0" max="20">
                 </div>
                 <div class="form-group">
-                    <label>Đóng BHXH:</label>
+                    <label data-lang="insurance-label">Đóng BHXH:</label>
                     <select id="insurance">
-                        <option value="full">Đóng đầy đủ (10.5%)</option>
-                        <option value="none">Không đóng</option>
+                        <option value="full" data-lang="ins-full">Đóng đầy đủ (10.5%)</option>
+                        <option value="none" data-lang="ins-none">Không đóng</option>
                     </select>
                 </div>
             </div>
 
             <div class="btn-group">
-                <button class="btn btn-primary" onclick="calculate()">Tính toán</button>
-                <button class="btn btn-secondary" onclick="resetForm()">Làm mới</button>
+                <button class="btn btn-primary" onclick="calculate()" data-lang="calc-btn">Tính toán</button>
+                <button class="btn btn-secondary" onclick="resetForm()" data-lang="reset-btn">Làm mới</button>
             </div>
         </div>
 
@@ -736,6 +765,106 @@
             document.getElementById('insurance').value = 'full';
             document.getElementById('resultSection').classList.remove('show');
         }
+
+        // i18n
+        const translations = {
+            vi: {
+                'back': 'Quay lại trang chủ',
+                'title': 'Tính Lương Gross - Net',
+                'subtitle': 'Công cụ tính lương theo quy định pháp luật Việt Nam',
+                'input-title': 'Thông tin đầu vào',
+                'law-label': 'Chọn quy định áp dụng:',
+                'calc-type-label': 'Loại tính toán:',
+                'salary-gross': 'Lương Gross (VNĐ):',
+                'salary-net': 'Lương Net mong muốn (VNĐ):',
+                'salary-placeholder': 'Nhập số tiền',
+                'region-label': 'Vùng lương tối thiểu:',
+                'region1': 'Vùng 1 (Hà Nội, TP.HCM...)',
+                'region2': 'Vùng 2',
+                'region3': 'Vùng 3',
+                'region4': 'Vùng 4',
+                'dependents-label': 'Số người phụ thuộc:',
+                'insurance-label': 'Đóng BHXH:',
+                'ins-full': 'Đóng đầy đủ (10.5%)',
+                'ins-none': 'Không đóng',
+                'calc-btn': 'Tính toán',
+                'reset-btn': 'Làm mới',
+                'alert-invalid': 'Vui lòng nhập số tiền lương hợp lệ!'
+            },
+            en: {
+                'back': 'Back to Home',
+                'title': 'Gross - Net Salary Calculator',
+                'subtitle': 'Salary calculator according to Vietnam law',
+                'input-title': 'Input Information',
+                'law-label': 'Select applicable regulation:',
+                'calc-type-label': 'Calculation type:',
+                'salary-gross': 'Gross Salary (VND):',
+                'salary-net': 'Desired Net Salary (VND):',
+                'salary-placeholder': 'Enter amount',
+                'region-label': 'Minimum wage region:',
+                'region1': 'Region 1 (Hanoi, HCMC...)',
+                'region2': 'Region 2',
+                'region3': 'Region 3',
+                'region4': 'Region 4',
+                'dependents-label': 'Number of dependents:',
+                'insurance-label': 'Social Insurance:',
+                'ins-full': 'Full payment (10.5%)',
+                'ins-none': 'No payment',
+                'calc-btn': 'Calculate',
+                'reset-btn': 'Reset',
+                'alert-invalid': 'Please enter a valid salary amount!'
+            }
+        };
+
+        let currentLang = localStorage.getItem('lang') || 'vi';
+
+        function setLang(lang) {
+            currentLang = lang;
+            localStorage.setItem('lang', lang);
+            document.documentElement.lang = lang;
+            document.getElementById('lang-text').textContent = lang === 'vi' ? 'EN' : 'VI';
+
+            document.querySelectorAll('[data-lang]').forEach(el => {
+                const key = el.getAttribute('data-lang');
+                if (translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+
+            document.querySelectorAll('[data-lang-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-lang-placeholder');
+                if (translations[lang][key]) {
+                    el.placeholder = translations[lang][key];
+                }
+            });
+
+            // Update salary label based on calc type
+            const salaryLabel = document.getElementById('salary-label');
+            if (currentCalcType === 'gross') {
+                salaryLabel.textContent = translations[lang]['salary-gross'];
+            } else {
+                salaryLabel.textContent = translations[lang]['salary-net'];
+            }
+        }
+
+        function toggleLang() {
+            setLang(currentLang === 'vi' ? 'en' : 'vi');
+        }
+
+        // Override updateCalcType to use translations
+        const originalUpdateCalcType = updateCalcType;
+        updateCalcType = function() {
+            originalUpdateCalcType();
+            const salaryLabel = document.getElementById('salary-label');
+            if (currentCalcType === 'gross') {
+                salaryLabel.textContent = translations[currentLang]['salary-gross'];
+            } else {
+                salaryLabel.textContent = translations[currentLang]['salary-net'];
+            }
+        };
+
+        // Initialize
+        setLang(currentLang);
     </script>
 </body>
 </html>
