@@ -3,24 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hinte</title>
+    <title>Hinte - Tools</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+            padding: 40px 20px;
         }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
         h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .tool-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 30px;
+            text-decoration: none;
+            color: white;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .tool-icon {
             font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .tool-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .tool-desc {
+            font-size: 0.95rem;
+            opacity: 0.85;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tool-card {
+                padding: 24px;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>Hello! Welcome to Hinte's page</h1>
+    <div class="container">
+        <header>
+            <h1>Hinte's Tools</h1>
+            <p class="subtitle">Bộ sưu tập các công cụ hữu ích</p>
+        </header>
+
+        <div class="tools-grid">
+            <a href="/tools/apilevel/" class="tool-card">
+                <span class="tool-icon">📱</span>
+                <h2 class="tool-title">Android API Levels</h2>
+                <p class="tool-desc">Bảng tra cứu nhanh các phiên bản Android với API level, version code và tỷ lệ sử dụng.</p>
+            </a>
+
+            <a href="/tools/img-gen/" class="tool-card">
+                <span class="tool-icon">🎨</span>
+                <h2 class="tool-title">Tạo Hình AI</h2>
+                <p class="tool-desc">Tạo hình ảnh từ mô tả văn bản bằng tiếng Việt sử dụng AI.</p>
+            </a>
+        </div>
+    </div>
 </body>
 </html>
