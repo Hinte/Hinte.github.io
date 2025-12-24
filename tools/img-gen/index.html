@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tao Hinh AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #ffffff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .back-link {
+            color: #a0aec0;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .back-link:hover {
+            color: white;
+        }
+
+        .lang-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background 0.3s;
+        }
+
+        .lang-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #00d4ff, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #a0aec0;
+            font-size: 1rem;
+        }
+
+        .input-section {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .input-section label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+            color: #e2e8f0;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #ffffff;
+            font-size: 1rem;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #00d4ff;
+        }
+
+        textarea::placeholder {
+            color: #64748b;
+        }
+
+        .char-count {
+            text-align: right;
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 8px;
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 16px 32px;
+            margin-top: 20px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #ffffff;
+            background: linear-gradient(90deg, #00d4ff, #7c3aed);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .generate-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+        }
+
+        .generate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #00d4ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: #a0aec0;
+        }
+
+        .result-section {
+            display: none;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+
+        .result-section.show {
+            display: block;
+        }
+
+        .result-section h2 {
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            color: #e2e8f0;
+        }
+
+        .generated-image {
+            max-width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+        }
+
+        .download-btn {
+            display: inline-block;
+            padding: 14px 32px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #ffffff;
+            background: #10b981;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+        }
+
+        .error-message {
+            display: none;
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 20px;
+            color: #fca5a5;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .shortcut-hint {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        .shortcut-hint kbd {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .input-section,
+            .result-section {
+                padding: 20px;
+            }
+
+            .generate-btn,
+            .download-btn {
+                padding: 14px 24px;
+                font-size: 1rem;
+            }
+
+            .header-top {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-top">
+                <a href="/" class="back-link" data-lang="back">&larr; Quay lai trang chu</a>
+                <button class="lang-btn" onclick="toggleLang()">
+                    <span id="lang-text">EN</span>
+                </button>
+            </div>
+            <h1 data-lang="title">Tao Hinh AI</h1>
+            <p class="subtitle" data-lang="subtitle">Nhap mo ta bang tieng Viet de tao hinh anh bang AI</p>
+        </header>
+
+        <div class="input-section">
+            <label for="prompt" data-lang="label">Mo ta hinh anh ban muon tao:</label>
+            <textarea
+                id="prompt"
+                data-lang-placeholder="placeholder"
+                placeholder="Vi du: Mot chu meo cam dang nam tren ghe sofa mau xanh, anh sang mat troi chieu qua cua so..."
+                maxlength="1000"
+            ></textarea>
+            <div class="char-count"><span id="charCount">0</span>/1000</div>
+
+            <button class="generate-btn" id="generateBtn" onclick="generateImage()" data-lang="generate">
+                Tao Hinh
+            </button>
+
+            <div class="shortcut-hint">
+                <span data-lang="shortcut-hint">Nhan</span> <kbd>Ctrl</kbd> + <kbd>Enter</kbd> <span data-lang="shortcut-hint2">de tao hinh</span>
+            </div>
+
+            <div class="error-message" id="errorMessage"></div>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p class="loading-text" data-lang="loading">Dang tao hinh anh, vui long doi...</p>
+        </div>
+
+        <div class="result-section" id="resultSection">
+            <h2 data-lang="result-title">Hinh anh da tao</h2>
+            <img id="generatedImage" class="generated-image" src="" alt="Generated Image">
+            <br>
+            <a id="downloadBtn" class="download-btn" href="" download="ai-generated-image.png" data-lang="download">
+                Tai ve
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const translations = {
+            vi: {
+                'back': '← Quay lại trang chủ',
+                'title': 'Tạo Hình AI',
+                'subtitle': 'Nhập mô tả bằng tiếng Việt để tạo hình ảnh bằng AI',
+                'label': 'Mô tả hình ảnh bạn muốn tạo:',
+                'placeholder': 'Ví dụ: Một chú mèo cam đang nằm trên ghế sofa màu xanh, ánh sáng mặt trời chiếu qua cửa sổ...',
+                'generate': 'Tạo Hình',
+                'shortcut-hint': 'Nhấn',
+                'shortcut-hint2': 'để tạo hình',
+                'loading': 'Đang tạo hình ảnh, vui lòng đợi...',
+                'result-title': 'Hình ảnh đã tạo',
+                'download': 'Tải về',
+                'error-empty': 'Vui lòng nhập mô tả hình ảnh.',
+                'error-long': 'Mô tả không được vượt quá 1000 ký tự.',
+                'error-generate': 'Không thể tạo hình ảnh. Vui lòng thử lại.',
+                'error-general': 'Đã xảy ra lỗi. Vui lòng thử lại sau.'
+            },
+            en: {
+                'back': '← Back to Home',
+                'title': 'AI Image Generator',
+                'subtitle': 'Enter a description to generate images using AI',
+                'label': 'Describe the image you want to create:',
+                'placeholder': 'Example: An orange cat lying on a blue sofa, sunlight streaming through the window...',
+                'generate': 'Generate',
+                'shortcut-hint': 'Press',
+                'shortcut-hint2': 'to generate',
+                'loading': 'Generating image, please wait...',
+                'result-title': 'Generated Image',
+                'download': 'Download',
+                'error-empty': 'Please enter an image description.',
+                'error-long': 'Description cannot exceed 1000 characters.',
+                'error-generate': 'Unable to generate image. Please try again.',
+                'error-general': 'An error occurred. Please try again later.'
+            }
+        };
+
+        let currentLang = localStorage.getItem('lang') || 'vi';
+
+        function setLang(lang) {
+            currentLang = lang;
+            localStorage.setItem('lang', lang);
+            document.documentElement.lang = lang;
+            document.getElementById('lang-text').textContent = lang === 'vi' ? 'EN' : 'VI';
+
+            document.querySelectorAll('[data-lang]').forEach(el => {
+                const key = el.getAttribute('data-lang');
+                if (translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+
+            document.querySelectorAll('[data-lang-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-lang-placeholder');
+                if (translations[lang][key]) {
+                    el.placeholder = translations[lang][key];
+                }
+            });
+        }
+
+        function toggleLang() {
+            setLang(currentLang === 'vi' ? 'en' : 'vi');
+        }
+
+        const promptInput = document.getElementById('prompt');
+        const charCount = document.getElementById('charCount');
+        const generateBtn = document.getElementById('generateBtn');
+        const loading = document.getElementById('loading');
+        const resultSection = document.getElementById('resultSection');
+        const generatedImage = document.getElementById('generatedImage');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const errorMessage = document.getElementById('errorMessage');
+
+        // Character count
+        promptInput.addEventListener('input', () => {
+            charCount.textContent = promptInput.value.length;
+        });
+
+        // Keyboard shortcut
+        promptInput.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'Enter') {
+                generateImage();
+            }
+        });
+
+        // Translate Vietnamese to English using MyMemory API
+        async function translateToEnglish(text) {
+            try {
+                const response = await fetch(
+                    `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=vi|en`
+                );
+                const data = await response.json();
+
+                if (data.responseStatus === 200 && data.responseData.translatedText) {
+                    return data.responseData.translatedText;
+                }
+                return text;
+            } catch (error) {
+                console.error('Translation error:', error);
+                return text;
+            }
+        }
+
+        // Check if text contains Vietnamese
+        function containsVietnamese(text) {
+            const vietnamesePattern = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i;
+            return vietnamesePattern.test(text);
+        }
+
+        async function generateImage() {
+            const prompt = promptInput.value.trim();
+
+            // Validation
+            if (!prompt) {
+                showError(translations[currentLang]['error-empty']);
+                return;
+            }
+
+            if (prompt.length > 1000) {
+                showError(translations[currentLang]['error-long']);
+                return;
+            }
+
+            // Hide previous results and errors
+            hideError();
+            resultSection.classList.remove('show');
+
+            // Show loading
+            loading.classList.add('show');
+            generateBtn.disabled = true;
+
+            try {
+                // Translate if Vietnamese
+                let englishPrompt = prompt;
+                if (containsVietnamese(prompt)) {
+                    englishPrompt = await translateToEnglish(prompt);
+                }
+
+                // Generate image using Pollinations.ai
+                const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(englishPrompt)}?width=1024&height=1024&nologo=true`;
+
+                // Load image
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+
+                img.onload = () => {
+                    loading.classList.remove('show');
+                    generateBtn.disabled = false;
+
+                    generatedImage.src = imageUrl;
+                    downloadBtn.href = imageUrl;
+                    resultSection.classList.add('show');
+
+                    // Scroll to result
+                    resultSection.scrollIntoView({ behavior: 'smooth' });
+                };
+
+                img.onerror = () => {
+                    loading.classList.remove('show');
+                    generateBtn.disabled = false;
+                    showError(translations[currentLang]['error-generate']);
+                };
+
+                img.src = imageUrl;
+
+            } catch (error) {
+                loading.classList.remove('show');
+                generateBtn.disabled = false;
+                showError(translations[currentLang]['error-general']);
+                console.error('Error:', error);
+            }
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.add('show');
+        }
+
+        function hideError() {
+            errorMessage.classList.remove('show');
+        }
+
+        // Initialize
+        setLang(currentLang);
+    </script>
+</body>
+</html>

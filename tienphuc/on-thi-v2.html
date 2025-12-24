@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ôn Tập Cuối Kì 1 - Lớp 4 (Trộn đề)</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+            line-height: 1.6;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .score-box {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 20px 0;
+            font-size: 20px;
+            position: sticky;
+            top: 10px;
+            z-index: 100;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .shuffle-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-left: 15px;
+            transition: all 0.3s;
+        }
+        .shuffle-btn:hover { background: #c0392b; transform: scale(1.05); }
+        .question {
+            background: #fff;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-left: 5px solid #3498db;
+        }
+        .question.ls { border-left-color: #e74c3c; }
+        .question.kh { border-left-color: #27ae60; }
+        .question.cn { border-left-color: #9b59b6; }
+        .question-number {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .question.ls .question-number { background: #e74c3c; }
+        .question.kh .question-number { background: #27ae60; }
+        .question.cn .question-number { background: #9b59b6; }
+        .subject-tag {
+            display: inline-block;
+            background: #ecf0f1;
+            color: #7f8c8d;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        .question-title {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        .options label {
+            display: block;
+            padding: 12px 15px;
+            margin: 8px 0;
+            background: #ecf0f1;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .options label:hover { background: #d5dbdb; transform: translateX(5px); }
+        .options input[type="radio"] { margin-right: 10px; }
+        .feedback {
+            padding: 12px 15px;
+            margin-top: 10px;
+            border-radius: 8px;
+            display: none;
+            font-weight: bold;
+        }
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+        .essay-question textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid #bdc3c7;
+            border-radius: 8px;
+            font-size: 14px;
+            resize: vertical;
+        }
+        .essay-question textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        #questions-container { margin-top: 20px; }
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 5px;
+        }
+        .legend-color.ls { background: #e74c3c; }
+        .legend-color.kh { background: #27ae60; }
+        .legend-color.cn { background: #9b59b6; }
+    </style>
+</head>
+<body>
+    <h1>ÔN TẬP CUỐI KÌ 1 - LỚP 4<br><small style="font-size:16px;color:#7f8c8d;">(Phiên bản trộn đề)</small></h1>
+
+    <div class="score-box">
+        Điểm: <span id="score">0</span> / <span id="total">0</span>
+        <button class="shuffle-btn" onclick="shuffleAndRender()">Trộn lại đề</button>
+    </div>
+
+    <div class="legend">
+        <div class="legend-item"><div class="legend-color ls"></div> Lịch Sử & Địa Lí</div>
+        <div class="legend-item"><div class="legend-color kh"></div> Khoa Học</div>
+        <div class="legend-item"><div class="legend-color cn"></div> Công Nghệ</div>
+    </div>
+
+    <div id="questions-container"></div>
+
+    <script>
+        let score = { correct: 0, total: 0 };
+        let answered = {};
+
+        const allQuestions = [
+            // LỊCH SỬ & ĐỊA LÍ - Trắc nghiệm
+            { id: 'ls1', subject: 'Lịch Sử & Địa Lí', num: '1', type: 'mc', title: 'Cột cờ Lũng Cú được xây dựng ở:', options: ['A. Xã Lũng Cú, tỉnh Tuyên Quang', 'B. Xã Sín Thầu, tỉnh Điện Biên', 'C. Xã Sín Thầu, tỉnh Tuyên Quang', 'D. Xã Lũng Cú, tỉnh Điện Biên'], answer: 'A' },
+            { id: 'ls2', subject: 'Lịch Sử & Địa Lí', num: '2', type: 'mc', title: 'Đặc điểm chính của địa hình ở vùng Trung du và miền núi phía Bắc là gì?', options: ['A. Địa hình tương đối bằng phẳng', 'B. Địa hình gồm các cao nguyên xếp tầng', 'C. Địa hình chủ yếu là đồi núi', 'D. Địa hình có dạng hình tam giác'], answer: 'C' },
+            { id: 'ls3', subject: 'Lịch Sử & Địa Lí', num: '3', type: 'mc', title: 'Dãy núi cao và đồ sộ nhất nước ta là dãy núi nào?', options: ['A. Dãy Trường Sơn', 'B. Dãy Hoàng Liên Sơn', 'C. Dãy Tam Đảo', 'D. Cánh Cung Đông Triều'], answer: 'B' },
+            { id: 'ls4', subject: 'Lịch Sử & Địa Lí', num: '4', type: 'mc', title: 'Năm 2024, vùng Trung du và miền núi phía Bắc có diện tích bao nhiêu?', options: ['A. 95 517,4 km²', 'B. 94 517,4 km²', 'C. 93 517,4 km²', 'D. 92 517,4 km²'], answer: 'D' },
+            { id: 'ls5', subject: 'Lịch Sử & Địa Lí', num: '5', type: 'mc', title: 'Đặc điểm khí hậu của vùng Trung du và miền núi phía Bắc:', options: ['A. Có khí hậu nhiệt đới gió mùa với mùa đông lạnh nhất cả nước', 'B. Có khí hậu nhiệt đới ẩm gió mùa với mùa đông lạnh nhất cả nước', 'C. Có khí hậu nhiệt đới ẩm gió mùa', 'D. Có mùa đông lạnh nhất cả nước'], answer: 'B' },
+            { id: 'ls6', subject: 'Lịch Sử & Địa Lí', num: '6', type: 'mc', title: 'Vùng đồng bằng Bắc Bộ gồm những tỉnh, thành phố nào?', options: ['A. Thủ đô Hà Nội, thành phố Ninh Bình và các tỉnh: Hải Phòng, Hưng Yên, Bắc Ninh, Quảng Ninh', 'B. Thủ đô Hà Nội, thành phố Hải Phòng và các tỉnh: Ninh Bình, Hưng Yên, Bắc Ninh, Quảng Ninh', 'C. Thủ đô Hà Nội, thành phố Hải Phòng và các tỉnh: Ninh Bình, Hưng Yên, Bắc Ninh, Quảng Ninh', 'D. Thủ đô Hà Nội, thành phố Đà Nẵng và các tỉnh: Ninh Bình, Hưng Yên, Bắc Ninh, Quảng Ninh'], answer: 'C' },
+            { id: 'ls7', subject: 'Lịch Sử & Địa Lí', num: '7', type: 'mc', title: 'Vùng đồng bằng Bắc Bộ tiếp giáp với những vùng nào của nước ta?', options: ['A. Vùng Trung du và miền núi phía Bắc, vùng Bắc Trung Bộ, vịnh Bắc Bộ', 'B. Vùng Trung du và miền núi phía Bắc, vùng Nam Trung Bộ, vùng Bắc Trung Bộ', 'C. Vùng Trung du và miền núi phía Bắc, vùng Đông Nam Bộ, vịnh Bắc Bộ', 'D. Vùng Trung du và miền núi phía Bắc, vùng Nam Trung Bộ, vịnh Bắc Bộ'], answer: 'A' },
+            { id: 'ls8', subject: 'Lịch Sử & Địa Lí', num: '8', type: 'mc', title: 'Đỉnh núi nào được gọi là "Nóc nhà Đông Dương"?', options: ['A. Mẫu Sơn', 'B. Hoàng Liên Sơn', 'C. Cánh cung Ngân Sơn', 'D. Phan-xi-păng'], answer: 'D' },
+            { id: 'ls9', subject: 'Lịch Sử & Địa Lí', num: '9', type: 'mc', title: 'Vào năm 2024, quy mô dân số vùng đồng bằng Bắc Bộ là bao nhiêu?', options: ['A. 24,8 triệu người', 'B. 25,8 triệu người', 'C. 26,8 triệu người', 'D. 27,8 triệu người'], answer: 'A' },
+            { id: 'ls10', subject: 'Lịch Sử & Địa Lí', num: '10', type: 'mc', title: 'Thực hành Then của người Tày, Nùng, Thái và Nghệ thuật Xòe Thái được UNESCO ghi danh là:', options: ['A. Di sản văn hóa vật thể đại diện của nhân loại 2018, 2019', 'B. Di sản văn hóa phi vật thể đại diện của nhân loại năm 2022, 2021', 'C. Di sản văn hóa phi vật thể đại diện của nhân loại 2018, 2019', 'D. Di sản văn hóa phi vật thể đại diện của nhân loại 2019, 2021'], answer: 'D' },
+            { id: 'ls11', subject: 'Lịch Sử & Địa Lí', num: '11', type: 'mc', title: 'Một số con sông lớn chảy qua vùng Trung du và miền núi phía Bắc là:', options: ['A. Sông Hồng, sông Đà, sông Chảy, sông Lô, sông Gâm,...', 'B. Sông Hồng, sông Đồng Nai, sông Chảy, sông Lô, sông Gâm,...', 'C. Sông Hồng, sông Cửu Long, sông Chảy, sông Đà, sông Gâm,...', 'D. Sông Hồng, sông Cửu Long, sông Chảy, sông Đáy, sông Gâm,...'], answer: 'A' },
+            { id: 'ls12', subject: 'Lịch Sử & Địa Lí', num: '12', type: 'mc', title: 'Ngày Quốc lễ Giỗ Tổ Hùng Vương là ngày nào?', options: ['A. Ngày 8 tháng 3 Âm lịch hằng năm', 'B. Ngày 30 tháng 4 hằng năm', 'C. Ngày 10 tháng 3 Âm lịch hằng năm', 'D. Ngày 1 tháng 5 hằng năm'], answer: 'C' },
+            { id: 'ls13', subject: 'Lịch Sử & Địa Lí', num: '13', type: 'mc', title: 'Ruộng bậc thang ở đâu đã trở thành địa điểm du lịch nổi tiếng?', options: ['A. Mù Cang Chải (Lào Cai)', 'B. Hoàng Su Phì (Hà Giang)', 'C. Sa Pa (Lào Cai)', 'D. Cả 3 đáp án trên đều đúng'], answer: 'D' },
+            { id: 'ls15', subject: 'Lịch Sử & Địa Lí', num: '15', type: 'mc', title: 'Vì sao vùng Đồng bằng Bắc Bộ có dân cư tập trung đông đúc nhất nước ta?', options: ['A. Do điều kiện tự nhiên thuận lợi cho sinh sống, giao thông và sản xuất', 'B. Do có nền văn hoá lâu đời, đất rộng, có nhiều đặc sản', 'C. Do đất đai màu mỡ và có nhiều khoáng sản, hải sản', 'D. Do có nhiều lễ hội lớn như: hội Lim, hội Gióng, hội Phủ Giày,...'], answer: 'A' },
+            { id: 'ls18', subject: 'Lịch Sử & Địa Lí', num: '18', type: 'mc', title: 'Vùng Đồng bằng Bắc Bộ được bồi đắp bởi phù sa của hệ thống sông nào?', options: ['A. Sông Hồng và sông Mã', 'B. Sông Hồng và sông Tiền', 'C. Sông Hồng và sông Mê Kông', 'D. Sông Hồng và sông Thái Bình'], answer: 'D' },
+            { id: 'ls19', subject: 'Lịch Sử & Địa Lí', num: '19', type: 'mc', title: 'Diện tích của vùng Đồng bằng Bắc Bộ là:', options: ['A. 15 000 km²', 'B. 25 000 km²', 'C. 35 000 km²', 'D. 45 000 km²'], answer: 'A' },
+            { id: 'ls27', subject: 'Lịch Sử & Địa Lí', num: '27', type: 'mc', title: 'Nhà nước đầu tiên ra đời có tên là gì?', options: ['A. Âu Lạc', 'B. Văn Lang', 'C. Đại Ngu', 'D. Đại Cồ Việt'], answer: 'B' },
+            { id: 'ls28', subject: 'Lịch Sử & Địa Lí', num: '28', type: 'mc', title: 'Thời nhà Lý, nhà vua nào đổi tên kinh đô Đại La là Thăng Long?', options: ['A. Lý Thái Tổ', 'B. Lý Hiển Tông', 'C. Lý Nhân Tông', 'D. Lý Thánh Tông'], answer: 'A' },
+            { id: 'ls30', subject: 'Lịch Sử & Địa Lí', num: '30', type: 'mc', title: 'Ruộng bậc thang thường được làm ở đâu?', options: ['A. Đỉnh núi', 'B. Sườn núi', 'C. Thung lũng', 'D. Đồng bằng'], answer: 'B' },
+            { id: 'ls31', subject: 'Lịch Sử & Địa Lí', num: '31', type: 'mc', title: 'Tên các giai đoạn sản xuất lúa ở vùng Đồng bằng Bắc Bộ theo thứ tự là:', options: ['A. Làm đất, gieo mạ, cấy lúa, chăm sóc lúa, thu hoạch lúa', 'B. Làm đất, cấy lúa, gieo mạ, chăm sóc lúa, thu hoạch lúa', 'C. Làm đất, gieo mạ, chăm sóc lúa, cấy lúa, thu hoạch lúa', 'D. Gieo mạ, làm đất, cấy lúa, chăm sóc lúa, thu hoạch lúa'], answer: 'A' },
+            // LỊCH SỬ & ĐỊA LÍ - Tự luận
+            { id: 'ls14', subject: 'Lịch Sử & Địa Lí', num: '14', type: 'essay', title: 'Vì sao nói Hà Nội là trung tâm chính trị, kinh tế, văn hoá, giáo dục của đất nước?' },
+            { id: 'ls23', subject: 'Lịch Sử & Địa Lí', num: '23', type: 'essay', title: 'Vùng Trung du và miền núi phía Bắc tiếp giáp với những quốc gia nào?' },
+            { id: 'ls25', subject: 'Lịch Sử & Địa Lí', num: '25', type: 'essay', title: 'Kể tên một số lễ hội thường được tổ chức ở vùng Trung du và miền núi phía Bắc.' },
+            { id: 'ls29', subject: 'Lịch Sử & Địa Lí', num: '29', type: 'essay', title: 'Vì sao Lý Thái Tổ chọn vùng đất Đại La làm kinh đô?' },
+            { id: 'ls32', subject: 'Lịch Sử & Địa Lí', num: '32', type: 'essay', title: 'Vì sao Đồng bằng Bắc Bộ trở thành vùng sản xuất lúa nước lớn thứ hai của Việt Nam?' },
+            { id: 'ls33', subject: 'Lịch Sử & Địa Lí', num: '33', type: 'essay', title: 'Kể tên những địa danh, di tích, thắng cảnh của Hà Nội.' },
+
+            // KHOA HỌC - Trắc nghiệm
+            { id: 'kh1', subject: 'Khoa Học', num: '1', type: 'mc', title: 'Nước có thể tồn tại ở những thể nào?', options: ['A. Thể lỏng', 'B. Thể rắn', 'C. Thể khí', 'D. Cả ba thể'], answer: 'D' },
+            { id: 'kh3', subject: 'Khoa Học', num: '3', type: 'mc', title: 'Đâu là nguyên nhân gây ô nhiễm nguồn nước?', options: ['A. Xả rác, phân, nước thải không đúng nơi quy định', 'B. Nước thải từ các nhà máy, khai thác khoáng sản chưa được xử lí', 'C. Sự cố tràn dầu', 'D. Cả ba đáp án trên đều đúng'], answer: 'D' },
+            { id: 'kh5', subject: 'Khoa Học', num: '5', type: 'mc', title: 'Việc nào sau đây nên làm để tiết kiệm nước?', options: ['A. Khóa chặt vòi nước khi không sử dụng', 'B. Tắm bằng vòi hoa sen thay vì tắm bồn', 'C. Tưới cây bằng nước rửa rau, nước vo gạo', 'D. Cả ba đáp án trên đều đúng'], answer: 'D' },
+            { id: 'kh6', subject: 'Khoa Học', num: '6', type: 'mc', title: 'Vì sao cần đảm bảo đủ ánh sáng trong lớp học?', options: ['A. Để hạn chế các bệnh về mắt', 'B. Để đảm bảo chất lượng dạy và học', 'C. Để nâng cao hiệu quả sử dụng năng lượng trong nhà trường', 'D. Cả ba đáp án trên đều đúng'], answer: 'D' },
+            { id: 'kh7', subject: 'Khoa Học', num: '7', type: 'mc', title: 'Điều gì sẽ xảy ra với Trái Đất nếu không có ánh sáng Mặt Trời?', options: ['A. Gió ngừng thổi, nước ngừng chảy và đóng băng, Trái Đất sẽ trở nên lạnh giá', 'B. Thực vật không thể quang hợp để duy trì sự sống', 'C. Con người, động vật không có không khí để hít thở', 'D. Cả ba đáp án trên đều đúng'], answer: 'D' },
+            { id: 'kh8a', subject: 'Khoa Học', num: '8a', type: 'mc', title: 'Không khí gồm hai thành phần chính nào?', options: ['A. Khí ô-xi và khí các-bô-níc', 'B. Khí ô-xi và khí ni tơ', 'C. Khí các-bô-níc và khí ni tơ', 'D. Khí ô-xi và hơi nước'], answer: 'B' },
+            { id: 'kh8b', subject: 'Khoa Học', num: '8b', type: 'mc', title: 'Trong các chất sau, chất nào tan trong nước?', options: ['A. Cát', 'B. Gạo', 'C. Đường', 'D. Gỗ'], answer: 'C' },
+            { id: 'kh9a', subject: 'Khoa Học', num: '9a', type: 'mc', title: 'Khi ánh sáng mặt trời chiếu sau lưng em thì em thấy bóng của mình đổ về phía:', options: ['A. Phía bên trái', 'B. Phía bên phải', 'C. Phía sau lưng', 'D. Phía trước mặt'], answer: 'D' },
+            { id: 'kh9b', subject: 'Khoa Học', num: '9b', type: 'mc', title: 'Nhiệt kế là dụng cụ để đo:', options: ['A. Độ cao', 'B. Nhiệt độ', 'C. Độ dài', 'D. Độ rộng'], answer: 'B' },
+            { id: 'kh10', subject: 'Khoa Học', num: '10', type: 'mc', title: 'Trong không khí, ánh sáng truyền theo đường:', options: ['A. Đường thẳng', 'B. Đường tròn', 'C. Đường chéo', 'D. Đường xiên'], answer: 'A' },
+            { id: 'kh11', subject: 'Khoa Học', num: '11', type: 'mc', title: 'Nước có tính chất gì?', options: ['A. Không màu, không mùi, không vị, chảy từ cao xuống thấp', 'B. Không màu, không mùi, có vị, chảy từ cao xuống thấp chảy lan ra mọi phía', 'C. Không màu, không mùi, không vị, chảy từ cao xuống thấp chảy lan ra mọi phía, thấm qua một số vật và hòa tan một số chất', 'D. Không màu, không mùi, không vị, không có hình dạng nhất định, chảy từ cao xuống thấp chảy lan ra mọi phía, thấm qua một số vật và hòa tan một số chất'], answer: 'D' },
+            { id: 'kh12', subject: 'Khoa Học', num: '12', type: 'mc', title: 'Trong các vật sau, vật nào là vật phát sáng?', options: ['A. Mặt Trời', 'B. Mặt trăng', 'C. Cái cây', 'D. Tất cả các loài động vật'], answer: 'A' },
+            { id: 'kh13', subject: 'Khoa Học', num: '13', type: 'mc', title: 'Không khí có thể bị nén lại hoặc dãn ra. Tính chất này có thể được ứng dụng trong việc:', options: ['A. Bơm xe đạp', 'B. Vá săm xe đạp', 'C. Chế tạo xe đạp', 'D. Sơn màu xe đạp'], answer: 'A' },
+            { id: 'kh14', subject: 'Khoa Học', num: '14', type: 'mc', title: 'Thực vật cần những yếu tố nào để sống và phát triển bình thường?', options: ['A. Đủ nước, ánh sáng', 'B. Đủ nước, ánh sáng và không khí', 'C. Đủ nước, ánh sáng, không khí và chất khoáng', 'D. Không khí, nước, đất'], answer: 'C' },
+            { id: 'kh15', subject: 'Khoa Học', num: '15', type: 'mc', title: 'Vật cản ánh sáng là vật như thế nào?', options: ['A. Vật không cho ánh sáng truyền qua', 'B. Vật cho mọi ánh sáng truyền qua', 'C. Vật chỉ cho ánh sáng xanh truyền qua', 'D. Vật không cho ánh sáng truyền qua trong môi trường nước'], answer: 'A' },
+            { id: 'kh17', subject: 'Khoa Học', num: '17', type: 'mc', title: 'Động vật ăn gì để sống?', options: ['A. Ăn động vật', 'B. Ăn thực vật', 'C. Chỉ ăn lá cây và uống nước', 'D. Tùy theo loài động vật mà chúng có nhu cầu về thức ăn khác nhau'], answer: 'D' },
+            { id: 'kh18', subject: 'Khoa Học', num: '18', type: 'mc', title: 'Vì sao những ngày nắng nóng, ta cần tưới nhiều nước cho cây hơn?', options: ['A. Vì lá cây thoát ít hơi nước hơn', 'B. Vì lượng hơi nước do lá thoát ra không đổi', 'C. Vì lá cây thoát nhiều hơi nước hơn', 'D. Cả 3 đáp án trên đều sai'], answer: 'C' },
+            { id: 'kh19', subject: 'Khoa Học', num: '19', type: 'mc', title: 'Hệ thống sục không khí vào nước ở các đầm nuôi tôm, cá có tác dụng gì?', options: ['A. Tăng lượng không khí', 'B. Giảm lượng không khí', 'C. Tăng lượng nước', 'D. Giảm lượng nước'], answer: 'A' },
+            { id: 'kh21', subject: 'Khoa Học', num: '21', type: 'mc', title: 'Nhiệt được truyền như thế nào?', options: ['A. Từ vật lạnh hơn sang vật nóng hơn', 'B. Từ vật có nhiệt độ thấp sang vật có nhiệt độ cao', 'C. Từ vật nóng hơn sang vật lạnh hơn', 'D. Tất cả các ý trên'], answer: 'C' },
+            { id: 'kh22', subject: 'Khoa Học', num: '22', type: 'mc', title: 'Theo thang cấp gió Bô-pho mở rộng, gió từ cấp mấy trở lên được gọi là bão?', options: ['A. Cấp 7', 'B. Cấp 8', 'C. Cấp 9', 'D. Cấp 10'], answer: 'B' },
+            { id: 'kh23', subject: 'Khoa Học', num: '23', type: 'mc', title: 'Nước đá thuộc thể nào?', options: ['A. Thể rắn', 'B. Thể lỏng', 'C. Thể khí', 'D. Tất cả các ý trên'], answer: 'A' },
+            { id: 'kh24', subject: 'Khoa Học', num: '24', type: 'mc', title: 'Trong các con vật dưới đây, con vật nào ăn thực vật?', options: ['A. Hổ', 'B. Mèo', 'C. Báo', 'D. Hươu'], answer: 'D' },
+            { id: 'kh27', subject: 'Khoa Học', num: '27', type: 'mc', title: 'Trong các câu sau câu nào đúng?', options: ['A. Vật lạnh hơn có nhiệt độ thấp hơn, vật nóng hơn có nhiệt độ cao hơn', 'B. Những vật bằng gỗ dẫn nhiệt tốt', 'C. Những vật bằng kim loại dẫn nhiệt kém', 'D. Nhiệt truyền từ vật lạnh hơn sang vật nóng hơn'], answer: 'A' },
+            { id: 'kh28', subject: 'Khoa Học', num: '28', type: 'mc', title: 'Những vật nào dẫn nhiệt tốt?', options: ['A. Len', 'B. Thủy tinh', 'C. Gỗ', 'D. Đồng'], answer: 'D' },
+            { id: 'kh29', subject: 'Khoa Học', num: '29', type: 'mc', title: 'Phần lớn thực vật sống trong khoảng nhiệt độ nào?', options: ['A. 0°C đến 30°C', 'B. 0°C đến 50°C', 'C. 0°C đến 40°C', 'D. 0°C đến 60°C'], answer: 'C' },
+            // KHOA HỌC - Tự luận
+            { id: 'kh_tl1', subject: 'Khoa Học', num: 'TL1', type: 'essay', title: 'Nêu vai trò của ánh sáng trong đời sống?' },
+            { id: 'kh_tl2', subject: 'Khoa Học', num: 'TL2', type: 'essay', title: 'Để bảo vệ mắt, em cần phải làm gì?' },
+            { id: 'kh_tl4', subject: 'Khoa Học', num: 'TL4', type: 'essay', title: 'Em hãy nêu các việc cần làm để bảo vệ nguồn nước?' },
+            { id: 'kh_tl5', subject: 'Khoa Học', num: 'TL5', type: 'essay', title: 'Nêu cách tiết kiệm nước của gia đình em?' },
+            { id: 'kh_tl9', subject: 'Khoa Học', num: 'TL9', type: 'essay', title: 'Để bảo vệ môi trường không khí, chúng ta cần làm gì?' },
+            { id: 'kh_tl10', subject: 'Khoa Học', num: 'TL10', type: 'essay', title: 'Nếu ở địa phương em xảy ra một cơn bão, em cùng gia đình mình sẽ làm gì để phòng chống bão?' },
+
+            // CÔNG NGHỆ - Trắc nghiệm
+            { id: 'cn16', subject: 'Công Nghệ', num: '16', type: 'mc', title: 'Khi cây quang hợp, sẽ lấy khí gì từ không khí?', options: ['A. Các-bon', 'B. O-xy-gen', 'C. Các-bon Đi-ô-xit', 'D. Ni-tơ'], answer: 'C' },
+            { id: 'cn17', subject: 'Công Nghệ', num: '17', type: 'mc', title: 'Đâu KHÔNG phải là một đặc điểm của hoa mai?', options: ['A. Được trồng phổ biến ở miền Nam, nở vào mùa xuân', 'B. Hoa thường có màu vàng, trắng', 'C. Có hương thơm đặc trưng, nổi bật', 'D. Tô điểm cho không gian ngày Tết thêm ấm cúng'], answer: 'C' },
+            { id: 'cn18', subject: 'Công Nghệ', num: '18', type: 'mc', title: 'Loại dụng cụ trồng hoa, cây cảnh dùng để xúc đất, xới xáo đất, làm tơi xốp,... là:', options: ['A. Cưa', 'B. Xẻng', 'C. Kéo cắt tỉa cành cây', 'D. Bình tưới cây'], answer: 'B' },
+            { id: 'cn19', subject: 'Công Nghệ', num: '19', type: 'mc', title: 'Bước 2 của công việc gieo hạt cây cảnh trong chậu là:', options: ['A. Chuẩn bị vật liệu, vật dụng, dụng cụ', 'B. Cho giá thể vào chậu', 'C. Gieo hạt', 'D. Tưới nước'], answer: 'B' },
+            { id: 'cn20', subject: 'Công Nghệ', num: '20', type: 'mc', title: 'Đâu KHÔNG phải vật liệu, dụng cụ, vật dụng cần thiết để trồng hoa, cây cảnh trong chậu?', options: ['A. Cây giống, giá thể', 'B. Bình tưới cây, găng tay làm vườn', 'C. Xẻng nhỏ', 'D. Lỗ thoát dưới đáy chậu'], answer: 'D' },
+            { id: 'cn21', subject: 'Công Nghệ', num: '21', type: 'mc', title: 'Cây thiếu ánh sáng có biểu hiện gì?', options: ['A. Lá cây bị vàng', 'B. Cháy lá', 'C. Cây yếu, vươn dài', 'D. Lá cây màu đỏ đậm'], answer: 'C' },
+            // CÔNG NGHỆ - Tự luận
+            { id: 'cn1', subject: 'Công Nghệ', num: '1', type: 'essay', title: 'Nêu lợi ích của hoa, cây cảnh.' },
+            { id: 'cn2', subject: 'Công Nghệ', num: '2', type: 'essay', title: 'Để hoa và cây cảnh mang lại nhiều lợi ích cho cuộc sống, cần làm gì?' },
+            { id: 'cn3', subject: 'Công Nghệ', num: '3', type: 'essay', title: 'Hoa đào thường nở vào thời điểm nào?' },
+            { id: 'cn7', subject: 'Công Nghệ', num: '7', type: 'essay', title: 'Em hãy nêu đặc điểm của cây lưỡi hổ.' },
+            { id: 'cn9', subject: 'Công Nghệ', num: '9', type: 'essay', title: 'Em hãy nêu đặc điểm của loại chậu nhựa dùng trồng hoa và cây cảnh.' },
+            { id: 'cn12', subject: 'Công Nghệ', num: '12', type: 'essay', title: 'Loại chậu nào thích hợp dùng làm chậu treo trồng hoa và cây cảnh? Vì sao?' },
+            { id: 'cn14', subject: 'Công Nghệ', num: '14', type: 'essay', title: 'Khi trồng hoa, cây cảnh ta để sỏi dăm xuống đáy chậu có tác dụng gì?' },
+            { id: 'cn15', subject: 'Công Nghệ', num: '15', type: 'essay', title: 'Vì sao không nên bón phân sát gốc cây?' },
+            { id: 'cn_tl', subject: 'Công Nghệ', num: 'TL', type: 'essay', title: 'Nêu các việc cần làm sau khi gieo hạt hoa, cây cảnh trong chậu.' },
+        ];
+
+        function shuffle(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function getSubjectClass(subject) {
+            if (subject.includes('Lịch Sử')) return 'ls';
+            if (subject.includes('Khoa Học')) return 'kh';
+            return 'cn';
+        }
+
+        function renderQuestions(questions) {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+            score = { correct: 0, total: 0 };
+            answered = {};
+            updateScore();
+
+            questions.forEach((q, index) => {
+                const subjectClass = getSubjectClass(q.subject);
+                const div = document.createElement('div');
+                div.className = `question ${subjectClass}` + (q.type === 'essay' ? ' essay-question' : '');
+                div.dataset.id = q.id;
+                div.dataset.subject = q.subject;
+                div.dataset.num = q.num;
+
+                let html = `
+                    <span class="question-number">Câu ${index + 1}</span>
+                    <span class="subject-tag">${q.subject} - Câu ${q.num}</span>
+                    <div class="question-title">${q.title}</div>
+                `;
+
+                if (q.type === 'mc') {
+                    html += '<div class="options">';
+                    q.options.forEach(opt => {
+                        const value = opt.charAt(0);
+                        html += `<label><input type="radio" name="${q.id}" value="${value}" onclick="checkAnswer('${q.id}', '${value}', '${q.answer}')"> ${opt}</label>`;
+                    });
+                    html += '</div>';
+                    html += `<div class="feedback" id="fb-${q.id}"></div>`;
+                } else {
+                    html += '<textarea placeholder="Viết câu trả lời của em ở đây..."></textarea>';
+                }
+
+                div.innerHTML = html;
+                container.appendChild(div);
+            });
+        }
+
+        function checkAnswer(questionId, selected, correct) {
+            if (answered[questionId]) return;
+            answered[questionId] = true;
+
+            const feedback = document.getElementById('fb-' + questionId);
+            const question = document.querySelector(`[data-id="${questionId}"]`);
+            const subject = question.dataset.subject;
+            const num = question.dataset.num;
+
+            score.total++;
+
+            if (selected === correct) {
+                feedback.className = 'feedback correct';
+                feedback.innerHTML = '&#10004; Chính xác! Đáp án đúng là ' + correct;
+                score.correct++;
+            } else {
+                feedback.className = 'feedback incorrect';
+                feedback.innerHTML = `&#10008; Sai rồi! (Đề cương môn ${subject}, Câu ${num}) - Đáp án đúng là ${correct}`;
+            }
+
+            updateScore();
+
+            // Disable options
+            const options = question.querySelectorAll('input[type="radio"]');
+            options.forEach(opt => opt.disabled = true);
+        }
+
+        function updateScore() {
+            document.getElementById('score').textContent = score.correct;
+            document.getElementById('total').textContent = score.total;
+        }
+
+        function shuffleAndRender() {
+            const shuffled = shuffle(allQuestions);
+            renderQuestions(shuffled);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Initial render
+        shuffleAndRender();
+    </script>
+</body>
+</html>

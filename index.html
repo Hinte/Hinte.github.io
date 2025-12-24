@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hinte - Tools</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .lang-switch {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .lang-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+        }
+
+        .lang-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* Search box */
+        .search-box {
+            max-width: 500px;
+            margin: 0 auto 40px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 20px 15px 50px;
+            border: none;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: background 0.3s, box-shadow 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .search-input:focus {
+            background: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+            opacity: 0.8;
+        }
+
+        .search-clear {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 14px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .search-clear:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .search-clear.show {
+            display: flex;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            opacity: 0.8;
+            display: none;
+        }
+
+        .no-results.show {
+            display: block;
+        }
+
+        .tool-card.hidden {
+            display: none;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .tool-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 30px;
+            text-decoration: none;
+            color: white;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .tool-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .tool-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .tool-desc {
+            font-size: 0.95rem;
+            opacity: 0.85;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tool-card {
+                padding: 24px;
+            }
+
+            .lang-switch {
+                position: static;
+                text-align: center;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="lang-switch">
+        <button class="lang-btn" onclick="toggleLang()">
+            <span id="lang-text">EN</span>
+        </button>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>Hinte's Tools</h1>
+            <p class="subtitle" data-lang="subtitle">Bo suu tap cac cong cu huu ich</p>
+        </header>
+
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" class="search-input" id="searchInput" placeholder="Tìm kiếm công cụ..." data-lang-placeholder="search-placeholder">
+            <button class="search-clear" id="searchClear" onclick="clearSearch()">✕</button>
+        </div>
+
+        <div class="no-results" id="noResults">
+            <p data-lang="no-results">Không tìm thấy công cụ nào phù hợp</p>
+        </div>
+
+        <div class="tools-grid" id="toolsGrid">
+            <a href="/tools/apilevel/" class="tool-card">
+                <span class="tool-icon">📱</span>
+                <h2 class="tool-title">Android API Levels</h2>
+                <p class="tool-desc" data-lang="api-desc">Bang tra cuu nhanh cac phien ban Android voi API level, version code va ty le su dung.</p>
+            </a>
+
+            <a href="/tools/img-gen/" class="tool-card">
+                <span class="tool-icon">🎨</span>
+                <h2 class="tool-title" data-lang="img-title">Tao Hinh AI</h2>
+                <p class="tool-desc" data-lang="img-desc">Tao hinh anh tu mo ta van ban bang tieng Viet su dung AI.</p>
+            </a>
+
+            <a href="/tools/tinhluong/" class="tool-card">
+                <span class="tool-icon">💰</span>
+                <h2 class="tool-title" data-lang="salary-title">Tinh Luong Gross-Net</h2>
+                <p class="tool-desc" data-lang="salary-desc">Tinh luong Gross sang Net va nguoc lai theo phap luat Viet Nam 2025-2026.</p>
+            </a>
+
+            <a href="/tools/phantram/" class="tool-card">
+                <span class="tool-icon">📊</span>
+                <h2 class="tool-title" data-lang="percent-title">Tinh Phan Tram</h2>
+                <p class="tool-desc" data-lang="percent-desc">Tinh ti le phan tram theo so luong va tra cuu bang phan tram nhanh.</p>
+            </a>
+
+            <a href="/tools/barcode/" class="tool-card">
+                <span class="tool-icon">📷</span>
+                <h2 class="tool-title">Barcode Generator</h2>
+                <p class="tool-desc" data-lang="barcode-desc">Tao ma vach Code 128, Code 39, EAN, UPC va QR Code. Ho tro tai xuong PNG.</p>
+            </a>
+
+            <a href="/tools/paint/" class="tool-card">
+                <span class="tool-icon">🎨</span>
+                <h2 class="tool-title" data-lang="paint-title">Ve Tranh</h2>
+                <p class="tool-desc" data-lang="paint-desc">Cong cu ve tranh don gian cho cac ban nho. Co but ve, tay, to mau va cac hinh co ban.</p>
+            </a>
+
+            <a href="/tools/tet/" class="tool-card">
+                <span class="tool-icon">🧧</span>
+                <h2 class="tool-title" data-lang="tet-title">Dem Nguoc Tet</h2>
+                <p class="tool-desc" data-lang="tet-desc">Dem nguoc ngay toi Tet Nguyen Dan va xem cac ngay le sap toi.</p>
+            </a>
+
+            <a href="/tools/amlich/" class="tool-card">
+                <span class="tool-icon">🌙</span>
+                <h2 class="tool-title" data-lang="lunar-title">Âm Lịch</h2>
+                <p class="tool-desc" data-lang="lunar-desc">Chuyển đổi giữa Dương lịch và Âm lịch. Xem Can Chi, Tiết Khí và lịch tháng.</p>
+            </a>
+
+            <a href="/games/game-bat-buom/" class="tool-card">
+                <span class="tool-icon">🦋</span>
+                <h2 class="tool-title" data-lang="butterfly-title">Game Bắt Bướm</h2>
+                <p class="tool-desc" data-lang="butterfly-desc">Game bắt bướm vui nhộn. Thu thập kim cương, xây bướm và trang trí vườn.</p>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const translations = {
+            vi: {
+                'subtitle': 'Bộ sưu tập các công cụ hữu ích',
+                'api-desc': 'Bảng tra cứu nhanh các phiên bản Android với API level, version code và tỷ lệ sử dụng.',
+                'img-title': 'Tạo Hình AI',
+                'img-desc': 'Tạo hình ảnh từ mô tả văn bản bằng tiếng Việt sử dụng AI.',
+                'salary-title': 'Tính Lương Gross-Net',
+                'salary-desc': 'Tính lương Gross sang Net và ngược lại theo pháp luật Việt Nam 2025-2026.',
+                'percent-title': 'Tính Phần Trăm',
+                'percent-desc': 'Tính tỉ lệ phần trăm theo số lượng và tra cứu bảng phần trăm nhanh.',
+                'barcode-desc': 'Tạo mã vạch Code 128, Code 39, EAN, UPC và QR Code. Hỗ trợ tải xuống PNG.',
+                'paint-title': 'Vẽ Tranh',
+                'paint-desc': 'Công cụ vẽ tranh đơn giản cho các bạn nhỏ. Có bút vẽ, tẩy, tô màu và các hình cơ bản.',
+                'tet-title': 'Đếm Ngược Tết',
+                'tet-desc': 'Đếm ngược ngày tới Tết Nguyên Đán và xem các ngày lễ sắp tới.',
+                'lunar-title': 'Âm Lịch',
+                'lunar-desc': 'Chuyển đổi giữa Dương lịch và Âm lịch. Xem Can Chi, Tiết Khí và lịch tháng.',
+                'butterfly-title': 'Game Bắt Bướm',
+                'butterfly-desc': 'Game bắt bướm vui nhộn. Thu thập kim cương, xây bướm và trang trí vườn.',
+                'search-placeholder': 'Tìm kiếm công cụ...',
+                'no-results': 'Không tìm thấy công cụ nào phù hợp'
+            },
+            en: {
+                'subtitle': 'A collection of useful tools',
+                'api-desc': 'Quick reference table for Android versions with API level, version code and usage rate.',
+                'img-title': 'AI Image Generator',
+                'img-desc': 'Generate images from text descriptions using AI.',
+                'salary-title': 'Gross-Net Salary Calculator',
+                'salary-desc': 'Calculate Gross to Net salary and vice versa according to Vietnam law 2025-2026.',
+                'percent-title': 'Percentage Calculator',
+                'percent-desc': 'Calculate percentage by quantity and quick percentage lookup table.',
+                'barcode-desc': 'Generate Code 128, Code 39, EAN, UPC and QR Code barcodes. PNG download supported.',
+                'paint-title': 'Paint',
+                'paint-desc': 'Simple painting tool for kids. Includes brush, eraser, fill and basic shapes.',
+                'tet-title': 'Tet Countdown',
+                'tet-desc': 'Countdown to Lunar New Year and view upcoming holidays.',
+                'lunar-title': 'Lunar Calendar',
+                'lunar-desc': 'Convert between Solar and Lunar calendar. View Can Chi, Solar Terms and monthly calendar.',
+                'butterfly-title': 'Butterfly Catching Game',
+                'butterfly-desc': 'Fun butterfly catching game. Collect diamonds, build butterflies and decorate garden.',
+                'search-placeholder': 'Search tools...',
+                'no-results': 'No tools found'
+            }
+        };
+
+        let currentLang = localStorage.getItem('lang') || 'vi';
+
+        function setLang(lang) {
+            currentLang = lang;
+            localStorage.setItem('lang', lang);
+            document.documentElement.lang = lang;
+            document.getElementById('lang-text').textContent = lang === 'vi' ? 'EN' : 'VI';
+
+            document.querySelectorAll('[data-lang]').forEach(el => {
+                const key = el.getAttribute('data-lang');
+                if (translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+
+            // Update placeholder
+            document.querySelectorAll('[data-lang-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-lang-placeholder');
+                if (translations[lang][key]) {
+                    el.placeholder = translations[lang][key];
+                }
+            });
+        }
+
+        function toggleLang() {
+            setLang(currentLang === 'vi' ? 'en' : 'vi');
+        }
+
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        const searchClear = document.getElementById('searchClear');
+        const toolsGrid = document.getElementById('toolsGrid');
+        const noResults = document.getElementById('noResults');
+
+        function removeAccents(str) {
+            return str.normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/đ/g, 'd')
+                .replace(/Đ/g, 'D');
+        }
+
+        function searchTools() {
+            const query = removeAccents(searchInput.value.toLowerCase().trim());
+            const cards = toolsGrid.querySelectorAll('.tool-card');
+            let visibleCount = 0;
+
+            searchClear.classList.toggle('show', query.length > 0);
+
+            cards.forEach(card => {
+                const title = removeAccents(card.querySelector('.tool-title').textContent.toLowerCase());
+                const desc = removeAccents(card.querySelector('.tool-desc').textContent.toLowerCase());
+                const matches = title.includes(query) || desc.includes(query);
+
+                card.classList.toggle('hidden', !matches);
+                if (matches) visibleCount++;
+            });
+
+            noResults.classList.toggle('show', visibleCount === 0 && query.length > 0);
+        }
+
+        function clearSearch() {
+            searchInput.value = '';
+            searchTools();
+            searchInput.focus();
+        }
+
+        searchInput.addEventListener('input', searchTools);
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') clearSearch();
+        });
+
+        // Initialize
+        setLang(currentLang);
+    </script>
+</body>
+</html>

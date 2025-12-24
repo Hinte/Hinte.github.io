@@ -1,0 +1,1439 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Bat Chuon Chuon V2 - Xay Nha & Buom</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            background: linear-gradient(135deg, #87CEEB 0%, #98FB98 50%, #90EE90 100%);
+            min-height: 100vh;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            cursor: crosshair;
+        }
+
+        #ui-panel {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 100;
+            min-width: 220px;
+        }
+
+        #diamond-count {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2196F3;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #diamond-count::before {
+            content: '💎';
+            font-size: 28px;
+        }
+
+        #block-count {
+            font-size: 18px;
+            font-weight: bold;
+            color: #8B4513;
+            margin-top: 8px;
+        }
+
+        #block-count::before {
+            content: '🧱';
+            font-size: 20px;
+            margin-right: 5px;
+        }
+
+        #click-power {
+            margin-top: 10px;
+            font-size: 16px;
+            color: #FF5722;
+        }
+
+        #click-power::before {
+            content: '⚡';
+        }
+
+        #butterfly-status {
+            margin-top: 8px;
+            font-size: 14px;
+            color: #9C27B0;
+        }
+
+        #upgrade-panel {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 100;
+            max-width: 220px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        #upgrade-panel h3 {
+            margin-bottom: 10px;
+            color: #333;
+            font-size: 16px;
+        }
+
+        #upgrade-panel h4 {
+            margin-top: 15px;
+            margin-bottom: 8px;
+            color: #666;
+            font-size: 14px;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+
+        .upgrade-btn {
+            display: block;
+            width: 100%;
+            padding: 8px 12px;
+            margin: 5px 0;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .upgrade-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+        }
+
+        .upgrade-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .upgrade-power {
+            background: linear-gradient(135deg, #FF9800, #FF5722);
+            color: white;
+        }
+
+        .buy-blocks {
+            background: linear-gradient(135deg, #8B4513, #A0522D);
+            color: white;
+        }
+
+        .build-btn {
+            background: linear-gradient(135deg, #4CAF50, #2E7D32);
+            color: white;
+        }
+
+        .deco-btn {
+            background: linear-gradient(135deg, #E91E63, #9C27B0);
+            color: white;
+        }
+
+        /* Decoration Area - ground items */
+        #decoration-area {
+            position: fixed;
+            bottom: 55px;
+            left: 0;
+            right: 0;
+            height: 150px;
+            pointer-events: none;
+            z-index: 6;
+        }
+
+        .decoration-item {
+            position: absolute;
+            filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.4));
+        }
+
+        /* Nha - dung yen, khoi bay */
+        .deco-house {
+            font-size: 55px;
+            animation: houseSmoke 3s ease-in-out infinite;
+        }
+        @keyframes houseSmoke {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
+
+        /* Cay - lac lu theo gio */
+        .deco-tree {
+            font-size: 65px;
+            animation: treeWind 4s ease-in-out infinite;
+            transform-origin: bottom center;
+        }
+        @keyframes treeWind {
+            0%, 100% { transform: rotate(0deg) scaleX(1); }
+            25% { transform: rotate(3deg) scaleX(1.02); }
+            75% { transform: rotate(-2deg) scaleX(0.98); }
+        }
+
+        /* Hoa - no va xoay */
+        .deco-flower {
+            font-size: 35px;
+            animation: flowerBloom 2s ease-in-out infinite;
+        }
+        @keyframes flowerBloom {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.1) rotate(5deg); }
+            50% { transform: scale(1.15) rotate(0deg); }
+            75% { transform: scale(1.1) rotate(-5deg); }
+        }
+
+        /* Den - nhap nhay sang */
+        .deco-lantern {
+            font-size: 45px;
+            animation: lanternGlow 1.5s ease-in-out infinite;
+        }
+        @keyframes lanternGlow {
+            0%, 100% {
+                filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.4)) drop-shadow(0 0 8px rgba(255,200,0,0.6));
+                transform: scale(1);
+            }
+            50% {
+                filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.4)) drop-shadow(0 0 20px rgba(255,200,0,1));
+                transform: scale(1.05);
+            }
+        }
+
+        /* Dai phun - nuoc phun */
+        .deco-fountain {
+            font-size: 50px;
+            animation: fountainSpray 1s ease-in-out infinite;
+        }
+        @keyframes fountainSpray {
+            0%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(1.1); }
+        }
+        .deco-fountain::after {
+            content: '💧';
+            position: absolute;
+            font-size: 15px;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: waterDrop 0.8s ease-in infinite;
+        }
+        @keyframes waterDrop {
+            0% { opacity: 1; transform: translateX(-50%) translateY(0); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(25px); }
+        }
+
+        /* Tuong - xoay nhe */
+        .deco-statue {
+            font-size: 50px;
+            animation: statueRotate 6s ease-in-out infinite;
+        }
+        @keyframes statueRotate {
+            0%, 100% { transform: rotateY(0deg); }
+            50% { transform: rotateY(15deg); }
+        }
+
+        /* Buom trang tri bay */
+        .deco-butterfly {
+            font-size: 30px;
+            animation: butterflyFly 3s ease-in-out infinite;
+        }
+        @keyframes butterflyFly {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(10px, -15px) rotate(10deg); }
+            50% { transform: translate(20px, 0) rotate(0deg); }
+            75% { transform: translate(10px, 10px) rotate(-10deg); }
+        }
+
+        /* Chim */
+        .deco-bird {
+            font-size: 28px;
+            animation: birdFly 2s ease-in-out infinite;
+        }
+        @keyframes birdFly {
+            0%, 100% { transform: translate(0, 0) scaleX(1); }
+            50% { transform: translate(30px, -10px) scaleX(1); }
+        }
+
+        /* Mat troi/mat trang */
+        .deco-sun {
+            font-size: 45px;
+            animation: sunGlow 4s ease-in-out infinite;
+        }
+        @keyframes sunGlow {
+            0%, 100% {
+                filter: drop-shadow(0 0 15px rgba(255,200,0,0.8));
+                transform: rotate(0deg) scale(1);
+            }
+            50% {
+                filter: drop-shadow(0 0 30px rgba(255,200,0,1));
+                transform: rotate(180deg) scale(1.1);
+            }
+        }
+
+        /* Cau vong */
+        .deco-rainbow {
+            font-size: 60px;
+            animation: rainbowShine 3s ease-in-out infinite;
+        }
+        @keyframes rainbowShine {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+        }
+
+        /* May */
+        .deco-cloud {
+            font-size: 40px;
+            animation: cloudFloat 8s ease-in-out infinite;
+        }
+        @keyframes cloudFloat {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(30px); }
+        }
+
+        /* Building Area */
+        #building-area {
+            position: fixed;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            height: 250px;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        #building-container {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: center;
+        }
+
+        .building-row {
+            display: flex;
+            justify-content: center;
+            gap: 2px;
+        }
+
+        .building-block {
+            width: 25px;
+            height: 25px;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .flying-block {
+            position: fixed;
+            font-size: 25px;
+            pointer-events: none;
+            z-index: 200;
+            transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        /* Butterfly Helper */
+        .butterfly-helper {
+            position: absolute;
+            font-size: 45px;
+            z-index: 15;
+            filter: drop-shadow(0 0 8px gold);
+            cursor: default;
+            pointer-events: none;
+        }
+
+        .butterfly-helper.hunting {
+            animation: butterflyWing 0.3s infinite alternate;
+        }
+
+        @keyframes butterflyWing {
+            0% { transform: scaleY(1) rotate(-5deg); }
+            100% { transform: scaleY(0.9) rotate(5deg); }
+        }
+
+        .dragonfly {
+            position: absolute;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.1s ease;
+            z-index: 10;
+        }
+
+        .dragonfly:hover {
+            transform: scale(1.1);
+        }
+
+        .dragonfly.frozen {
+            animation: none !important;
+        }
+
+        .dragonfly-body {
+            position: relative;
+            width: 60px;
+            height: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .dragonfly-level {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .dragonfly-emoji {
+            font-size: 40px;
+            filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.3));
+        }
+
+        .dragonfly.red .dragonfly-emoji {
+            filter: drop-shadow(0 0 10px red) drop-shadow(2px 2px 2px rgba(0,0,0,0.3));
+        }
+
+        .diamond-popup {
+            position: absolute;
+            font-size: 20px;
+            font-weight: bold;
+            color: #2196F3;
+            pointer-events: none;
+            animation: floatUp 1s ease-out forwards;
+            z-index: 200;
+        }
+
+        .diamond-popup.negative {
+            color: #F44336;
+        }
+
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-50px) scale(1.5);
+            }
+        }
+
+        .explosion {
+            position: absolute;
+            font-size: 60px;
+            pointer-events: none;
+            animation: explode 0.5s ease-out forwards;
+            z-index: 150;
+        }
+
+        @keyframes explode {
+            0% {
+                opacity: 1;
+                transform: scale(0.5);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.5);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(2);
+            }
+        }
+
+        #instructions {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 12px;
+            text-align: center;
+            z-index: 100;
+            max-width: 90%;
+        }
+
+        .click-effect {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border: 3px solid #FFD700;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: clickRipple 0.4s ease-out forwards;
+            z-index: 50;
+        }
+
+        @keyframes clickRipple {
+            0% {
+                transform: scale(0.5);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+
+        .combo-text {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 40px;
+            font-weight: bold;
+            color: #FFD700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            pointer-events: none;
+            animation: comboFade 1s ease-out forwards;
+            z-index: 300;
+        }
+
+        @keyframes comboFade {
+            0% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(0.5);
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.2);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        #butterfly-progress {
+            margin-top: 10px;
+            background: #ddd;
+            border-radius: 10px;
+            height: 20px;
+            overflow: hidden;
+            display: none;
+        }
+
+        #butterfly-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #9C27B0, #E91E63);
+            width: 0%;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .ground {
+            position: fixed;
+            bottom: 50px;
+            left: 0;
+            right: 0;
+            height: 10px;
+            background: linear-gradient(to bottom, #8B4513, #654321);
+            z-index: 4;
+        }
+
+        /* Logo */
+        #logo-area {
+            position: fixed;
+            bottom: 15px;
+            left: 15px;
+            z-index: 101;
+        }
+
+        #game-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+
+        #game-logo:hover {
+            transform: scale(1.1);
+        }
+
+        /* Butterfly attack indicator */
+        .butterfly-attack {
+            position: absolute;
+            font-size: 20px;
+            pointer-events: none;
+            animation: attackPop 0.3s ease-out forwards;
+            z-index: 200;
+        }
+
+        @keyframes attackPop {
+            0% {
+                opacity: 1;
+                transform: scale(0.5);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(1.5) translateY(-20px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="ui-panel">
+            <div id="diamond-count">0</div>
+            <div id="block-count">0 blocks</div>
+            <div id="click-power">Suc manh: 1</div>
+            <div id="butterfly-status">Buom: Chua co</div>
+            <div id="butterfly-progress">
+                <div id="butterfly-progress-bar">0/30</div>
+            </div>
+        </div>
+
+        <div id="upgrade-panel">
+            <h3>⚡ Nang Cap</h3>
+            <button class="upgrade-btn upgrade-power" id="upgrade-power-btn" onclick="upgradePower()">
+                Tang suc manh (+1)<br>
+                <span id="power-cost">💎 50</span>
+            </button>
+
+            <h4>🧱 Blocks & Buom</h4>
+            <button class="upgrade-btn buy-blocks" id="buy-blocks-btn" onclick="buyBlocks()">
+                Mua 5 Blocks - 💎 1
+            </button>
+            <button class="upgrade-btn build-btn" id="build-btn" onclick="startBuilding()">
+                🦋 Xay Buom (30 blocks)<br>
+                <span id="build-status">Can 30 blocks</span>
+            </button>
+
+            <h4>🏠 Mat Dat</h4>
+            <button class="upgrade-btn deco-btn" onclick="buyDecoration('🏠', 10, 'house')">
+                🏠 Nha - 💎 10
+            </button>
+            <button class="upgrade-btn deco-btn" onclick="buyDecoration('🌳', 5, 'tree')">
+                🌳 Cay - 💎 5
+            </button>
+            <button class="upgrade-btn deco-btn" onclick="buyDecoration('🌸', 3, 'flower')">
+                🌸 Hoa - 💎 3
+            </button>
+            <button class="upgrade-btn deco-btn" onclick="buyDecoration('🏮', 8, 'lantern')">
+                🏮 Den - 💎 8
+            </button>
+            <button class="upgrade-btn deco-btn" onclick="buyDecoration('⛲', 15, 'fountain')">
+                ⛲ Dai Phun - 💎 15
+            </button>
+            <button class="upgrade-btn deco-btn" onclick="buyDecoration('🗿', 12, 'statue')">
+                🗿 Tuong - 💎 12
+            </button>
+
+            <h4>🦋 Tren Troi</h4>
+            <button class="upgrade-btn deco-btn" onclick="buyDecoration('🦋', 6, 'butterfly')">
+                🦋 Buom - 💎 6
+            </button>
+            <button class="upgrade-btn deco-btn" onclick="buyDecoration('🐦', 7, 'bird')">
+                🐦 Chim - 💎 7
+            </button>
+            <button class="upgrade-btn deco-btn" onclick="buyDecoration('☁️', 4, 'cloud')">
+                ☁️ May - 💎 4
+            </button>
+            <button class="upgrade-btn deco-btn" onclick="buyDecoration('🌈', 20, 'rainbow')">
+                🌈 Cau Vong - 💎 20
+            </button>
+            <button class="upgrade-btn deco-btn" onclick="buyDecoration('🌞', 25, 'sun')">
+                🌞 Mat Troi - 💎 25
+            </button>
+        </div>
+
+        <div class="ground"></div>
+
+        <div id="decoration-area"></div>
+
+        <div id="building-area">
+            <div id="building-container"></div>
+        </div>
+
+        <div id="instructions">
+            🎯 Click chuon chuon! | 🔴 Do = No 3 con! | 🧱 Xay buom giup bat! | 🏠🌳🦋 Trang tri vuon!
+        </div>
+
+        <div id="logo-area">
+            <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABsSFBcUERsXFhceHBsgKEIrKCUlKFE6PTBCYFVlZF9VXVtqeJmBanGQc1tdhbWGkJ6jq62rZ4C8ybqmx5moq6T/2wBDARweHigjKE4rK06kbl1upKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKT/wAARCABAAEADASIAAhEBAxEB/8QAGgAAAgMBAQAAAAAAAAAAAAAAAwQBAgUABv/EAC0QAAIBAgQDBgcBAAAAAAAAAAECAAMRBBIhMQVBURMiJDJhcRRScoGRobFi/8QAGAEAAwEBAAAAAAAAAAAAAAAAAQIDAAT/xAAeEQADAQACAgMAAAAAAAAAAAAAAQIRAzEEEhMhUf/aAAwDAQACEQMRAD8AZZwtW+RdxcGMUMVUYMABvoekg0gWuxJ09pcAKAFAA6QZoNJGgsJN5EyeJ41+2ahTNlXRvUxjBsbUUggMt2PWaKWCKBYgDQieZ7UndQY/wvEMtUUz5X5dDBgS/Ez4kfTFgYxxIFsYQBeyCKgwgN4zpJnWgMdMWthC2OrMxIp3vc8z0mnUZmGZCBbqYCsMiLUZGIJsLmK6/CqhLsU+DosCVrEfaXwGHC41CHzAAna0ZD0FUgIo67Q2ERAzNTUBdhMm9NSSRncSPjW9AP5FhD8RPj6n2/kXEoSPQlgPaKYjGjNkU2HMiAfEi3eqqV/yRcxRWRmJW9iechTZ08cpscXE01N1o5iObm5nYnGGugphMovcm8ABJAi+7L/DIRVqFbFAfWadMoiKui32BmUrsvlYj2MvmJ1Ykn1hV4I+De2LY8+PrfVAXjOIQP39iNDbnA9l6/uVVJo5bhy8AstzrLgm4taOHhVQbVqX7lTw2v8APTI63i4gy3PRKgtsCZJBU6gj3kJpbvEWNjrCdo2WwckGRazs7lW/aKSGayk9JcoYKrpTP4gQzO89MqeYMTCXNtPzHafKL1KWV2G9jLcbzUcvkT0z/9k=" alt="Logo" id="game-logo">
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let diamonds = 100; // Start with some diamonds for testing
+        let blocks = 0;
+        let clickPower = 1;
+        let powerUpgradeCost = 50;
+        let dragonflies = [];
+        let lastClickTime = 0;
+        let frozenDragonflies = new Set();
+        let decorations = [];
+
+        // Butterfly building state
+        let butterflyBuilt = false;
+        let butterflyHelper = null;
+        let buildingBlocks = 0;
+        const BLOCKS_FOR_BUTTERFLY = 30;
+        let isBuilding = false;
+
+        // Butterfly stats (weaker and slower)
+        let butterflyPower = 1; // Only deals 1 damage per hit
+        let butterflyAttackCooldown = 0;
+        const BUTTERFLY_ATTACK_DELAY = 1500; // 1.5 seconds between attacks
+        const BUTTERFLY_SPEED = 1.2; // Much slower
+
+        // Butterfly pattern (smaller, 30 blocks)
+        const butterflyPattern = [
+            [0, 1, 0, 0, 0, 1, 0],
+            [1, 1, 0, 0, 0, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 0, 0, 0, 1, 1],
+            [0, 1, 0, 0, 0, 1, 0],
+        ];
+
+        const container = document.getElementById('game-container');
+        const diamondDisplay = document.getElementById('diamond-count');
+        const blockDisplay = document.getElementById('block-count');
+        const powerDisplay = document.getElementById('click-power');
+        const powerCostDisplay = document.getElementById('power-cost');
+        const upgradePowerBtn = document.getElementById('upgrade-power-btn');
+        const buyBlocksBtn = document.getElementById('buy-blocks-btn');
+        const buildBtn = document.getElementById('build-btn');
+        const buildStatus = document.getElementById('build-status');
+        const butterflyStatus = document.getElementById('butterfly-status');
+        const butterflyProgress = document.getElementById('butterfly-progress');
+        const butterflyProgressBar = document.getElementById('butterfly-progress-bar');
+        const buildingContainer = document.getElementById('building-container');
+        const decorationArea = document.getElementById('decoration-area');
+
+        // Dragonfly colors
+        const colorFilters = [
+            'hue-rotate(0deg)',
+            'hue-rotate(60deg)',
+            'hue-rotate(180deg)',
+            'hue-rotate(270deg)',
+            'hue-rotate(320deg)'
+        ];
+
+        // Create dragonfly
+        function createDragonfly(isRed = false) {
+            const dragonfly = document.createElement('div');
+            dragonfly.className = 'dragonfly' + (isRed ? ' red' : '');
+
+            const level = Math.floor(Math.random() * 5) + 1;
+            dragonfly.dataset.level = level;
+            dragonfly.dataset.maxLevel = level;
+            dragonfly.dataset.isRed = isRed;
+
+            const colorIndex = Math.floor(Math.random() * colorFilters.length);
+
+            dragonfly.innerHTML = `
+                <div class="dragonfly-body">
+                    <div class="dragonfly-level">${level}</div>
+                    <div class="dragonfly-emoji" style="filter: ${isRed ? 'hue-rotate(0deg) saturate(3) brightness(0.8)' : colorFilters[colorIndex]}">
+                        ${isRed ? '🔴' : '🦋'}
+                    </div>
+                </div>
+            `;
+
+            const x = Math.random() * (window.innerWidth - 100) + 50;
+            const y = Math.random() * (window.innerHeight - 250) + 50;
+            dragonfly.style.left = x + 'px';
+            dragonfly.style.top = y + 'px';
+
+            dragonfly.dataset.vx = (Math.random() - 0.5) * 4;
+            dragonfly.dataset.vy = (Math.random() - 0.5) * 4;
+            dragonfly.dataset.id = Date.now() + Math.random();
+
+            dragonfly.addEventListener('mousedown', (e) => {
+                e.stopPropagation();
+                handleDragonflyClick(dragonfly, e);
+            });
+
+            container.appendChild(dragonfly);
+            dragonflies.push(dragonfly);
+
+            return dragonfly;
+        }
+
+        // Handle dragonfly click
+        function handleDragonflyClick(dragonfly, event) {
+            lastClickTime = Date.now();
+
+            frozenDragonflies.add(dragonfly.dataset.id);
+            dragonfly.classList.add('frozen');
+
+            createClickEffect(event.clientX, event.clientY);
+
+            let currentLevel = parseInt(dragonfly.dataset.level);
+            const maxLevel = parseInt(dragonfly.dataset.maxLevel);
+            const isRed = dragonfly.dataset.isRed === 'true';
+
+            currentLevel -= clickPower;
+
+            if (currentLevel <= 0) {
+                if (isRed) {
+                    triggerExplosion(dragonfly);
+                } else {
+                    const reward = maxLevel * 2;
+                    addDiamonds(reward, event.clientX, event.clientY);
+                    removeDragonfly(dragonfly);
+                }
+            } else {
+                dragonfly.dataset.level = currentLevel;
+                dragonfly.querySelector('.dragonfly-level').textContent = currentLevel;
+            }
+        }
+
+        // Butterfly attacks dragonfly (weaker - needs multiple hits)
+        function butterflyAttack(dragonfly) {
+            const rect = dragonfly.getBoundingClientRect();
+            const x = rect.left + rect.width / 2;
+            const y = rect.top + rect.height / 2;
+
+            // Show attack effect
+            const attackEffect = document.createElement('div');
+            attackEffect.className = 'butterfly-attack';
+            attackEffect.textContent = '💫';
+            attackEffect.style.left = x + 'px';
+            attackEffect.style.top = y + 'px';
+            container.appendChild(attackEffect);
+            setTimeout(() => attackEffect.remove(), 300);
+
+            let currentLevel = parseInt(dragonfly.dataset.level);
+            const maxLevel = parseInt(dragonfly.dataset.maxLevel);
+            const isRed = dragonfly.dataset.isRed === 'true';
+
+            currentLevel -= butterflyPower;
+
+            if (currentLevel <= 0) {
+                if (isRed) {
+                    triggerExplosion(dragonfly);
+                } else {
+                    const reward = maxLevel * 2;
+                    addDiamonds(reward, x, y);
+                    removeDragonfly(dragonfly);
+                }
+            } else {
+                dragonfly.dataset.level = currentLevel;
+                dragonfly.querySelector('.dragonfly-level').textContent = currentLevel;
+            }
+        }
+
+        // Trigger explosion for red dragonfly
+        function triggerExplosion(redDragonfly) {
+            const rect = redDragonfly.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            createExplosion(centerX, centerY);
+
+            const otherDragonflies = dragonflies
+                .filter(d => d !== redDragonfly && d.dataset.isRed !== 'true')
+                .map(d => {
+                    const dRect = d.getBoundingClientRect();
+                    const dx = dRect.left - centerX;
+                    const dy = dRect.top - centerY;
+                    return { dragonfly: d, distance: Math.sqrt(dx * dx + dy * dy) };
+                })
+                .sort((a, b) => a.distance - b.distance)
+                .slice(0, 3);
+
+            let totalReward = parseInt(redDragonfly.dataset.maxLevel) * 3;
+
+            otherDragonflies.forEach(({ dragonfly }) => {
+                const maxLvl = parseInt(dragonfly.dataset.maxLevel);
+                totalReward += maxLvl * 3;
+                createExplosion(
+                    dragonfly.getBoundingClientRect().left + 30,
+                    dragonfly.getBoundingClientRect().top + 10
+                );
+                removeDragonfly(dragonfly);
+            });
+
+            addDiamonds(totalReward, centerX, centerY);
+            showComboText(`💥 BOOM! +${totalReward}💎`);
+            removeDragonfly(redDragonfly);
+        }
+
+        // Create explosion effect
+        function createExplosion(x, y) {
+            const explosion = document.createElement('div');
+            explosion.className = 'explosion';
+            explosion.textContent = '💥';
+            explosion.style.left = (x - 30) + 'px';
+            explosion.style.top = (y - 30) + 'px';
+            container.appendChild(explosion);
+
+            setTimeout(() => explosion.remove(), 500);
+        }
+
+        // Show combo text
+        function showComboText(text) {
+            const combo = document.createElement('div');
+            combo.className = 'combo-text';
+            combo.textContent = text;
+            document.body.appendChild(combo);
+
+            setTimeout(() => combo.remove(), 1000);
+        }
+
+        // Remove dragonfly
+        function removeDragonfly(dragonfly) {
+            frozenDragonflies.delete(dragonfly.dataset.id);
+            dragonflies = dragonflies.filter(d => d !== dragonfly);
+            dragonfly.remove();
+        }
+
+        // Add diamonds with popup
+        function addDiamonds(amount, x, y) {
+            diamonds += amount;
+            updateUI();
+            createDiamondPopup(amount, x, y);
+        }
+
+        // Create click effect
+        function createClickEffect(x, y) {
+            const effect = document.createElement('div');
+            effect.className = 'click-effect';
+            effect.style.left = (x - 15) + 'px';
+            effect.style.top = (y - 15) + 'px';
+            container.appendChild(effect);
+
+            setTimeout(() => effect.remove(), 400);
+        }
+
+        // Create diamond popup
+        function createDiamondPopup(amount, x, y) {
+            const popup = document.createElement('div');
+            popup.className = 'diamond-popup' + (amount < 0 ? ' negative' : '');
+            popup.textContent = (amount > 0 ? '+' : '') + amount + '💎';
+            popup.style.left = x + 'px';
+            popup.style.top = y + 'px';
+            container.appendChild(popup);
+
+            setTimeout(() => popup.remove(), 1000);
+        }
+
+        // Handle miss click
+        container.addEventListener('mousedown', (e) => {
+            if (e.target === container || e.target.id === 'game-container') {
+                if (diamonds > 0) {
+                    diamonds--;
+                    updateUI();
+                    createDiamondPopup(-1, e.clientX, e.clientY);
+                }
+                createClickEffect(e.clientX, e.clientY);
+            }
+        });
+
+        // Buy blocks
+        function buyBlocks() {
+            if (diamonds >= 1 && !butterflyBuilt) {
+                diamonds -= 1;
+                blocks += 5;
+                updateUI();
+                showComboText('🧱 +5 Blocks!');
+            }
+        }
+
+        // Decoration type mapping
+        const decoTypes = {
+            '🏠': { type: 'house', zone: 'ground' },
+            '🌳': { type: 'tree', zone: 'ground' },
+            '🌸': { type: 'flower', zone: 'ground' },
+            '🏮': { type: 'lantern', zone: 'ground' },
+            '⛲': { type: 'fountain', zone: 'ground' },
+            '🗿': { type: 'statue', zone: 'ground' },
+            '🦋': { type: 'butterfly', zone: 'sky' },
+            '🐦': { type: 'bird', zone: 'sky' },
+            '☁️': { type: 'cloud', zone: 'sky' },
+            '🌈': { type: 'rainbow', zone: 'sky' },
+            '🌞': { type: 'sun', zone: 'sky' }
+        };
+
+        // Used positions to avoid overlap
+        let usedPositions = [];
+
+        // Buy decoration
+        function buyDecoration(emoji, cost, type) {
+            if (diamonds >= cost) {
+                diamonds -= cost;
+                decorations.push({ emoji, type });
+                updateUI();
+                renderDecorations();
+                showComboText(`${emoji} Da mua!`);
+            }
+        }
+
+        // Get random position based on zone
+        function getRandomPosition(zone, type) {
+            let x, y;
+            const maxAttempts = 50;
+            let attempts = 0;
+
+            do {
+                if (zone === 'ground') {
+                    // Ground items: spread across bottom
+                    x = 50 + Math.random() * (window.innerWidth - 300);
+                    y = 0; // bottom = 0 for ground items
+                } else {
+                    // Sky items
+                    if (type === 'sun' || type === 'rainbow') {
+                        // Sun and rainbow stay high
+                        x = 100 + Math.random() * (window.innerWidth - 400);
+                        y = 100 + Math.random() * 80;
+                    } else if (type === 'cloud') {
+                        // Clouds float high
+                        x = Math.random() * (window.innerWidth - 300);
+                        y = 80 + Math.random() * 100;
+                    } else {
+                        // Birds and butterflies can be anywhere in sky
+                        x = 100 + Math.random() * (window.innerWidth - 400);
+                        y = 60 + Math.random() * 120;
+                    }
+                }
+                attempts++;
+            } while (isPositionTooClose(x, y, zone) && attempts < maxAttempts);
+
+            usedPositions.push({ x, y, zone });
+            return { x, y };
+        }
+
+        // Check if position is too close to existing items
+        function isPositionTooClose(x, y, zone) {
+            const minDistance = zone === 'ground' ? 60 : 80;
+            for (let pos of usedPositions) {
+                if (pos.zone === zone) {
+                    const dist = Math.sqrt((x - pos.x) ** 2 + (y - pos.y) ** 2);
+                    if (dist < minDistance) return true;
+                }
+            }
+            return false;
+        }
+
+        // Render decorations
+        function renderDecorations() {
+            // Clear existing decorations
+            decorationArea.innerHTML = '';
+            document.querySelectorAll('.sky-decoration').forEach(el => el.remove());
+            usedPositions = [];
+
+            // Separate ground and sky items
+            const groundItems = decorations.filter(d => decoTypes[d.emoji]?.zone === 'ground');
+            const skyItems = decorations.filter(d => decoTypes[d.emoji]?.zone === 'sky');
+
+            // Render ground items at bottom of screen
+            groundItems.forEach((deco, index) => {
+                const item = document.createElement('div');
+                item.className = `decoration-item deco-${deco.type}`;
+                item.textContent = deco.emoji;
+
+                // Random x position, y is near bottom
+                const x = 30 + Math.random() * (window.innerWidth - 280);
+                const bottomOffset = Math.random() * 10; // Small variation
+
+                item.style.left = x + 'px';
+                item.style.bottom = bottomOffset + 'px';
+                item.style.animationDelay = (Math.random() * 2) + 's';
+
+                decorationArea.appendChild(item);
+            });
+
+            // Render sky items (in game container at top)
+            skyItems.forEach((deco, index) => {
+                const item = document.createElement('div');
+                item.className = `decoration-item deco-${deco.type} sky-decoration`;
+                item.textContent = deco.emoji;
+
+                let x, y;
+                if (deco.type === 'sun' || deco.type === 'rainbow') {
+                    x = 150 + Math.random() * (window.innerWidth - 400);
+                    y = 80 + Math.random() * 60;
+                } else if (deco.type === 'cloud') {
+                    x = Math.random() * (window.innerWidth - 200);
+                    y = 60 + Math.random() * 80;
+                } else {
+                    x = 100 + Math.random() * (window.innerWidth - 300);
+                    y = 100 + Math.random() * 150;
+                }
+
+                item.style.left = x + 'px';
+                item.style.top = y + 'px';
+                item.style.animationDelay = (Math.random() * 3) + 's';
+                item.style.zIndex = '2';
+
+                container.appendChild(item);
+            });
+        }
+
+        // Start building butterfly
+        function startBuilding() {
+            if (blocks >= BLOCKS_FOR_BUTTERFLY && !butterflyBuilt && !isBuilding) {
+                isBuilding = true;
+                blocks -= BLOCKS_FOR_BUTTERFLY;
+                buildingBlocks = 0;
+                butterflyProgress.style.display = 'block';
+                buildBtn.disabled = true;
+                updateUI();
+
+                buildButterflyAnimation();
+            }
+        }
+
+        // Build butterfly with flying blocks animation
+        function buildButterflyAnimation() {
+            const totalBlocks = butterflyPattern.flat().filter(b => b === 1).length;
+            let currentBlock = 0;
+
+            buildingContainer.innerHTML = '';
+
+            const grid = [];
+            for (let row = 0; row < butterflyPattern.length; row++) {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'building-row';
+                const rowBlocks = [];
+                for (let col = 0; col < butterflyPattern[row].length; col++) {
+                    const blockDiv = document.createElement('div');
+                    blockDiv.className = 'building-block';
+                    blockDiv.style.opacity = '0';
+                    rowDiv.appendChild(blockDiv);
+                    rowBlocks.push(blockDiv);
+                }
+                buildingContainer.appendChild(rowDiv);
+                grid.push(rowBlocks);
+            }
+
+            const blockPositions = [];
+            for (let row = 0; row < butterflyPattern.length; row++) {
+                for (let col = 0; col < butterflyPattern[row].length; col++) {
+                    if (butterflyPattern[row][col] === 1) {
+                        blockPositions.push({ row, col });
+                    }
+                }
+            }
+
+            blockPositions.sort(() => Math.random() - 0.5);
+
+            let index = 0;
+            const batchSize = 10;
+
+            function sendBatch() {
+                const batch = blockPositions.slice(index, index + batchSize);
+                if (batch.length === 0) {
+                    setTimeout(() => {
+                        finishBuilding();
+                    }, 1000);
+                    return;
+                }
+
+                batch.forEach((pos, i) => {
+                    setTimeout(() => {
+                        const flyingBlock = document.createElement('div');
+                        flyingBlock.className = 'flying-block';
+                        flyingBlock.textContent = '🧱';
+
+                        flyingBlock.style.left = (window.innerWidth / 2 + (Math.random() - 0.5) * 200) + 'px';
+                        flyingBlock.style.top = (window.innerHeight + 50) + 'px';
+                        container.appendChild(flyingBlock);
+
+                        const targetBlock = grid[pos.row][pos.col];
+                        const targetRect = targetBlock.getBoundingClientRect();
+
+                        setTimeout(() => {
+                            flyingBlock.style.left = targetRect.left + 'px';
+                            flyingBlock.style.top = targetRect.top + 'px';
+
+                            setTimeout(() => {
+                                flyingBlock.remove();
+                                targetBlock.textContent = '🟪';
+                                targetBlock.style.opacity = '1';
+                                currentBlock++;
+                                buildingBlocks = currentBlock;
+                                updateBuildProgress(currentBlock, totalBlocks);
+                            }, 800);
+                        }, 50);
+                    }, i * 100);
+                });
+
+                index += batchSize;
+                setTimeout(sendBatch, batchSize * 100 + 1000);
+            }
+
+            sendBatch();
+        }
+
+        // Update build progress
+        function updateBuildProgress(current, total) {
+            const percent = (current / total) * 100;
+            butterflyProgressBar.style.width = percent + '%';
+            butterflyProgressBar.textContent = `${current}/${total}`;
+        }
+
+        // Finish building
+        function finishBuilding() {
+            isBuilding = false;
+            butterflyBuilt = true;
+            butterflyProgress.style.display = 'none';
+
+            buildingContainer.innerHTML = '';
+            const butterflyEmoji = document.createElement('div');
+            butterflyEmoji.style.fontSize = '70px';
+            butterflyEmoji.textContent = '🦋';
+            buildingContainer.appendChild(butterflyEmoji);
+
+            showComboText('🦋 Buom xay xong!');
+
+            setTimeout(() => {
+                buildingContainer.innerHTML = '';
+                createButterflyHelper();
+            }, 2000);
+
+            updateUI();
+        }
+
+        // Create butterfly helper
+        function createButterflyHelper() {
+            butterflyHelper = document.createElement('div');
+            butterflyHelper.className = 'butterfly-helper';
+            butterflyHelper.textContent = '🦋';
+
+            butterflyHelper.style.left = (window.innerWidth / 2) + 'px';
+            butterflyHelper.style.top = (window.innerHeight / 2) + 'px';
+
+            container.appendChild(butterflyHelper);
+
+            butterflyX = window.innerWidth / 2;
+            butterflyY = window.innerHeight / 2;
+
+            butterflyHunt();
+        }
+
+        // Butterfly hunting AI (slower and weaker)
+        let butterflyTarget = null;
+        let butterflyX = window.innerWidth / 2;
+        let butterflyY = window.innerHeight / 2;
+        let lastButterflyAttack = 0;
+
+        function butterflyHunt() {
+            if (!butterflyHelper || !butterflyBuilt) return;
+
+            const now = Date.now();
+
+            // Find target if none
+            if (!butterflyTarget || !dragonflies.includes(butterflyTarget)) {
+                butterflyTarget = null;
+                let minDist = Infinity;
+
+                dragonflies.forEach(d => {
+                    const rect = d.getBoundingClientRect();
+                    const dx = rect.left - butterflyX;
+                    const dy = rect.top - butterflyY;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < minDist) {
+                        minDist = dist;
+                        butterflyTarget = d;
+                    }
+                });
+            }
+
+            if (butterflyTarget) {
+                butterflyHelper.classList.add('hunting');
+
+                const rect = butterflyTarget.getBoundingClientRect();
+                const targetX = rect.left + rect.width / 2;
+                const targetY = rect.top + rect.height / 2;
+
+                const dx = targetX - butterflyX;
+                const dy = targetY - butterflyY;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < 40) {
+                    // Check attack cooldown
+                    if (now - lastButterflyAttack >= BUTTERFLY_ATTACK_DELAY) {
+                        butterflyAttack(butterflyTarget);
+                        lastButterflyAttack = now;
+
+                        // Check if target still exists after attack
+                        if (!dragonflies.includes(butterflyTarget)) {
+                            butterflyTarget = null;
+                        }
+                    }
+                } else {
+                    // Move towards target (slowly)
+                    butterflyX += (dx / dist) * BUTTERFLY_SPEED;
+                    butterflyY += (dy / dist) * BUTTERFLY_SPEED;
+
+                    butterflyHelper.style.left = butterflyX + 'px';
+                    butterflyHelper.style.top = butterflyY + 'px';
+
+                    if (dx < 0) {
+                        butterflyHelper.style.transform = 'scaleX(-1)';
+                    } else {
+                        butterflyHelper.style.transform = 'scaleX(1)';
+                    }
+                }
+            } else {
+                butterflyHelper.classList.remove('hunting');
+
+                // Idle movement - float around slowly
+                butterflyX += Math.sin(now / 1000) * 0.5;
+                butterflyY += Math.cos(now / 1500) * 0.3;
+
+                // Keep in bounds
+                butterflyX = Math.max(50, Math.min(window.innerWidth - 50, butterflyX));
+                butterflyY = Math.max(50, Math.min(window.innerHeight - 200, butterflyY));
+
+                butterflyHelper.style.left = butterflyX + 'px';
+                butterflyHelper.style.top = butterflyY + 'px';
+            }
+
+            requestAnimationFrame(butterflyHunt);
+        }
+
+        // Upgrade power
+        function upgradePower() {
+            if (diamonds >= powerUpgradeCost) {
+                diamonds -= powerUpgradeCost;
+                clickPower++;
+                powerUpgradeCost = Math.floor(powerUpgradeCost * 1.8);
+                updateUI();
+            }
+        }
+
+        // Update UI
+        function updateUI() {
+            diamondDisplay.textContent = diamonds;
+            blockDisplay.textContent = blocks + ' blocks';
+            powerDisplay.textContent = `Suc manh: ${clickPower}`;
+            powerCostDisplay.textContent = `💎 ${powerUpgradeCost}`;
+
+            upgradePowerBtn.disabled = diamonds < powerUpgradeCost;
+            buyBlocksBtn.disabled = diamonds < 1 || butterflyBuilt;
+
+            if (butterflyBuilt) {
+                buildBtn.disabled = true;
+                buildStatus.textContent = 'Da xay!';
+                butterflyStatus.textContent = '🦋 Buom: Dang san (cham)';
+                buyBlocksBtn.style.display = 'none';
+                buildBtn.style.display = 'none';
+            } else if (isBuilding) {
+                buildBtn.disabled = true;
+                buildStatus.textContent = 'Dang xay...';
+            } else {
+                buildBtn.disabled = blocks < BLOCKS_FOR_BUTTERFLY;
+                buildStatus.textContent = `Co: ${blocks}/${BLOCKS_FOR_BUTTERFLY}`;
+            }
+        }
+
+        // Move dragonflies
+        function moveDragonflies() {
+            const now = Date.now();
+            const timeSinceClick = now - lastClickTime;
+
+            dragonflies.forEach(dragonfly => {
+                if (frozenDragonflies.has(dragonfly.dataset.id) && timeSinceClick < 2000) {
+                    return;
+                }
+
+                if (timeSinceClick >= 2000) {
+                    frozenDragonflies.delete(dragonfly.dataset.id);
+                    dragonfly.classList.remove('frozen');
+                }
+
+                let vx = parseFloat(dragonfly.dataset.vx);
+                let vy = parseFloat(dragonfly.dataset.vy);
+
+                let x = parseFloat(dragonfly.style.left);
+                let y = parseFloat(dragonfly.style.top);
+
+                vx += (Math.random() - 0.5) * 0.2;
+                vy += (Math.random() - 0.5) * 0.2;
+
+                const maxSpeed = 3;
+                vx = Math.max(-maxSpeed, Math.min(maxSpeed, vx));
+                vy = Math.max(-maxSpeed, Math.min(maxSpeed, vy));
+
+                x += vx;
+                y += vy;
+
+                if (x < 0 || x > window.innerWidth - 80) {
+                    vx = -vx;
+                    x = Math.max(0, Math.min(window.innerWidth - 80, x));
+                }
+                if (y < 50 || y > window.innerHeight - 200) {
+                    vy = -vy;
+                    y = Math.max(50, Math.min(window.innerHeight - 200, y));
+                }
+
+                dragonfly.dataset.vx = vx;
+                dragonfly.dataset.vy = vy;
+                dragonfly.style.left = x + 'px';
+                dragonfly.style.top = y + 'px';
+
+                if (vx < 0) {
+                    dragonfly.style.transform = 'scaleX(-1)';
+                } else {
+                    dragonfly.style.transform = 'scaleX(1)';
+                }
+            });
+        }
+
+        // Spawn new dragonflies
+        function spawnDragonfly() {
+            if (dragonflies.length < 15) {
+                const isRed = Math.random() < 0.15;
+                createDragonfly(isRed);
+            }
+        }
+
+        // Initialize game
+        function initGame() {
+            for (let i = 0; i < 8; i++) {
+                createDragonfly(false);
+            }
+            createDragonfly(true);
+
+            setInterval(moveDragonflies, 30);
+            setInterval(spawnDragonfly, 3000);
+
+            updateUI();
+        }
+
+        // Start game
+        initGame();
+    </script>
+</body>
+</html>

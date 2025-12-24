@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tính Phần Trăm - Hinte Tools</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .back-link {
+            color: white;
+            text-decoration: none;
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        .back-link:hover {
+            opacity: 1;
+        }
+
+        .tables-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+
+        .input-section {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .input-section h2 {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            color: #ffeb3b;
+        }
+
+        table.input-table {
+            border-collapse: collapse;
+            background: white;
+            color: #333;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        table.input-table th,
+        table.input-table td {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            text-align: center;
+            min-width: 80px;
+        }
+
+        table.input-table th {
+            background: #f5f5f5;
+            font-weight: bold;
+            color: red;
+        }
+
+        table.input-table th.row-header {
+            background: #fff;
+            color: #333;
+            font-weight: bold;
+        }
+
+        table.input-table input {
+            width: 60px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        table.input-table input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.5);
+        }
+
+        .result-cell {
+            font-weight: bold;
+            color: #1976d2;
+        }
+
+        /* Lookup table styles */
+        .lookup-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        .lookup-section h2 {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 1.3rem;
+        }
+
+        table.lookup-table {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 12px;
+            color: #333;
+        }
+
+        table.lookup-table th,
+        table.lookup-table td {
+            border: 1px solid #ccc;
+            padding: 6px 8px;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        table.lookup-table th {
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+        }
+
+        table.lookup-table th.corner {
+            background: #764ba2;
+        }
+
+        table.lookup-table td.row-header {
+            background: #764ba2;
+            color: white;
+            font-weight: bold;
+            position: sticky;
+            left: 0;
+        }
+
+        table.lookup-table td:not(.row-header) {
+            background: #fff;
+        }
+
+        table.lookup-table tr:hover td:not(.row-header) {
+            background: #e3f2fd;
+        }
+
+        table.lookup-table td.highlight {
+            background: #ffeb3b !important;
+            font-weight: bold;
+        }
+
+        .total-display {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+
+        .total-display span {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .tables-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            table.input-table input {
+                width: 50px;
+            }
+
+            table.lookup-table {
+                font-size: 10px;
+            }
+
+            table.lookup-table th,
+            table.lookup-table td {
+                padding: 4px 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <a href="/" class="back-link" data-lang="back">&larr; Quay lại trang chủ</a>
+                <button onclick="toggleLang()" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 0.85rem;">
+                    <span id="lang-text">EN</span>
+                </button>
+            </div>
+            <h1 data-lang="title">Tính Phần Trăm</h1>
+            <p data-lang="subtitle">Nhập số lượng và xem tỉ lệ phần trăm tự động</p>
+        </header>
+
+        <div class="tables-container">
+            <!-- Table 1: 4 columns (A, B, C, D) -->
+            <div class="input-section">
+                <h2 data-lang="table-title">MỨC ĐẠT ĐƯỢC</h2>
+                <table class="input-table">
+                    <thead>
+                        <tr>
+                            <th class="row-header"></th>
+                            <th>A</th>
+                            <th>B</th>
+                            <th>C</th>
+                            <th>D</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="row-header" style="font-weight: bold;" data-lang="quantity">SỐ LƯỢNG</td>
+                            <td><input type="number" id="t1-a" min="0" value="0" onchange="calculate()"></td>
+                            <td><input type="number" id="t1-b" min="0" value="0" onchange="calculate()"></td>
+                            <td><input type="number" id="t1-c" min="0" value="0" onchange="calculate()"></td>
+                            <td><input type="number" id="t1-d" min="0" value="0" onchange="calculate()"></td>
+                        </tr>
+                        <tr>
+                            <td class="row-header" style="font-weight: bold;" data-lang="ratio">TỈ LỆ</td>
+                            <td class="result-cell" id="t1-a-pct">0%</td>
+                            <td class="result-cell" id="t1-b-pct">0%</td>
+                            <td class="result-cell" id="t1-c-pct">0%</td>
+                            <td class="result-cell" id="t1-d-pct">0%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Table 2: 3 columns (A, B, C) -->
+            <div class="input-section">
+                <h2 data-lang="table-title">MỨC ĐẠT ĐƯỢC</h2>
+                <table class="input-table">
+                    <thead>
+                        <tr>
+                            <th class="row-header"></th>
+                            <th>A</th>
+                            <th>B</th>
+                            <th>C</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="row-header" style="font-weight: bold;" data-lang="quantity">SỐ LƯỢNG</td>
+                            <td><input type="number" id="t2-a" min="0" value="0" onchange="calculate()"></td>
+                            <td><input type="number" id="t2-b" min="0" value="0" onchange="calculate()"></td>
+                            <td><input type="number" id="t2-c" min="0" value="0" onchange="calculate()"></td>
+                        </tr>
+                        <tr>
+                            <td class="row-header" style="font-weight: bold;" data-lang="ratio">TỈ LỆ</td>
+                            <td class="result-cell" id="t2-a-pct">0%</td>
+                            <td class="result-cell" id="t2-b-pct">0%</td>
+                            <td class="result-cell" id="t2-c-pct">0%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="total-display">
+            <p><span data-lang="total1">Tổng số lượng Bảng 1</span>: <span id="total1">0</span> | <span data-lang="total2">Tổng số lượng Bảng 2</span>: <span id="total2">0</span></p>
+        </div>
+
+        <!-- Lookup Table -->
+        <div class="lookup-section">
+            <h2 data-lang="lookup-title">BẢNG TRA CỨU PHẦN TRĂM</h2>
+            <div style="overflow-x: auto;">
+                <table class="lookup-table" id="lookup-table">
+                    <thead>
+                        <tr>
+                            <th class="corner" data-lang="lookup-corner">Tử số \ Mẫu số</th>
+                            <th>20</th>
+                            <th>21</th>
+                            <th>22</th>
+                            <th>23</th>
+                            <th>24</th>
+                            <th>25</th>
+                            <th>26</th>
+                            <th>27</th>
+                            <th>28</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lookup-body">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Generate lookup table
+        function generateLookupTable() {
+            const tbody = document.getElementById('lookup-body');
+            const data = [
+                ["1/20 (5.0%)","1/21 (4.8%)","1/22 (4.5%)","1/23 (4.3%)","1/24 (4.2%)","1/25 (4.0%)","1/26 (3.8%)","1/27 (3.7%)","1/28 (3.6%)"],
+                ["2/20 (10.0%)","2/21 (9.5%)","2/22 (9.1%)","2/23 (8.7%)","2/24 (8.3%)","2/25 (8.0%)","2/26 (7.7%)","2/27 (7.4%)","2/28 (7.1%)"],
+                ["3/20 (15.0%)","3/21 (14.3%)","3/22 (13.6%)","3/23 (13.0%)","3/24 (12.5%)","3/25 (12.0%)","3/26 (11.5%)","3/27 (11.1%)","3/28 (10.7%)"],
+                ["4/20 (20.0%)","4/21 (19.0%)","4/22 (18.2%)","4/23 (17.4%)","4/24 (16.7%)","4/25 (16.0%)","4/26 (15.4%)","4/27 (14.8%)","4/28 (14.3%)"],
+                ["5/20 (25.0%)","5/21 (23.8%)","5/22 (22.7%)","5/23 (21.7%)","5/24 (20.8%)","5/25 (20.0%)","5/26 (19.2%)","5/27 (18.5%)","5/28 (17.9%)"],
+                ["6/20 (30.0%)","6/21 (28.6%)","6/22 (27.3%)","6/23 (26.1%)","6/24 (25.0%)","6/25 (24.0%)","6/26 (23.1%)","6/27 (22.2%)","6/28 (21.4%)"],
+                ["7/20 (35.0%)","7/21 (33.3%)","7/22 (31.8%)","7/23 (30.4%)","7/24 (29.2%)","7/25 (28.0%)","7/26 (26.9%)","7/27 (25.9%)","7/28 (25.0%)"],
+                ["8/20 (40.0%)","8/21 (38.1%)","8/22 (36.4%)","8/23 (34.8%)","8/24 (33.3%)","8/25 (32.0%)","8/26 (30.8%)","8/27 (29.6%)","8/28 (28.6%)"],
+                ["9/20 (45.0%)","9/21 (42.9%)","9/22 (40.9%)","9/23 (39.1%)","9/24 (37.5%)","9/25 (36.0%)","9/26 (34.6%)","9/27 (33.3%)","9/28 (32.1%)"],
+                ["10/20 (50.0%)","10/21 (47.6%)","10/22 (45.5%)","10/23 (43.5%)","10/24 (41.7%)","10/25 (40.0%)","10/26 (38.5%)","10/27 (37.0%)","10/28 (35.7%)"],
+                ["11/20 (55.0%)","11/21 (52.4%)","11/22 (50.0%)","11/23 (47.8%)","11/24 (45.8%)","11/25 (44.0%)","11/26 (42.3%)","11/27 (40.7%)","11/28 (39.3%)"],
+                ["12/20 (60.0%)","12/21 (57.1%)","12/22 (54.5%)","12/23 (52.2%)","12/24 (50.0%)","12/25 (48.0%)","12/26 (46.2%)","12/27 (44.4%)","12/28 (42.9%)"],
+                ["13/20 (65.0%)","13/21 (61.9%)","13/22 (59.1%)","13/23 (56.5%)","13/24 (54.2%)","13/25 (52.0%)","13/26 (50.0%)","13/27 (48.1%)","13/28 (46.4%)"],
+                ["14/20 (70.0%)","14/21 (66.7%)","14/22 (63.6%)","14/23 (60.9%)","14/24 (58.3%)","14/25 (56.0%)","14/26 (53.8%)","14/27 (51.9%)","14/28 (50.0%)"],
+                ["15/20 (75.0%)","15/21 (71.4%)","15/22 (68.2%)","15/23 (65.2%)","15/24 (62.5%)","15/25 (60.0%)","15/26 (57.7%)","15/27 (55.6%)","15/28 (53.6%)"],
+                ["16/20 (80.0%)","16/21 (76.2%)","16/22 (72.7%)","16/23 (69.6%)","16/24 (66.7%)","16/25 (64.0%)","16/26 (61.5%)","16/27 (59.3%)","16/28 (57.1%)"],
+                ["17/20 (85.0%)","17/21 (81.0%)","17/22 (77.3%)","17/23 (73.9%)","17/24 (70.8%)","17/25 (68.0%)","17/26 (65.4%)","17/27 (63.0%)","17/28 (60.7%)"],
+                ["18/20 (90.0%)","18/21 (85.7%)","18/22 (81.8%)","18/23 (78.3%)","18/24 (75.0%)","18/25 (72.0%)","18/26 (69.2%)","18/27 (66.7%)","18/28 (64.3%)"],
+                ["19/20 (95.0%)","19/21 (90.5%)","19/22 (86.4%)","19/23 (82.6%)","19/24 (79.2%)","19/25 (76.0%)","19/26 (73.1%)","19/27 (70.4%)","19/28 (67.9%)"],
+                ["20/20 (100.0%)","20/21 (95.2%)","20/22 (90.9%)","20/23 (87.0%)","20/24 (83.3%)","20/25 (80.0%)","20/26 (76.9%)","20/27 (74.1%)","20/28 (71.4%)"],
+                ["","21/21 (100.0%)","21/22 (95.5%)","21/23 (91.3%)","21/24 (87.5%)","21/25 (84.0%)","21/26 (80.8%)","21/27 (77.8%)","21/28 (75.0%)"],
+                ["","","22/22 (100.0%)","22/23 (95.7%)","22/24 (91.7%)","22/25 (88.0%)","22/26 (84.6%)","22/27 (81.5%)","22/28 (78.6%)"],
+                ["","","","23/23 (100.0%)","23/24 (95.8%)","23/25 (92.0%)","23/26 (88.5%)","23/27 (85.2%)","23/28 (82.1%)"],
+                ["","","","","24/24 (100.0%)","24/25 (96.0%)","24/26 (92.3%)","24/27 (88.9%)","24/28 (85.7%)"],
+                ["","","","","","25/25 (100.0%)","25/26 (96.2%)","25/27 (92.6%)","25/28 (89.3%)"],
+                ["","","","","","","26/26 (100.0%)","26/27 (96.3%)","26/28 (92.9%)"],
+                ["","","","","","","","27/27 (100.0%)","27/28 (96.4%)"],
+                ["","","","","","","","","28/28 (100.0%)"]
+            ];
+
+            for (let i = 0; i < data.length; i++) {
+                const tr = document.createElement('tr');
+                const rowHeader = document.createElement('td');
+                rowHeader.className = 'row-header';
+                rowHeader.textContent = i + 1;
+                tr.appendChild(rowHeader);
+
+                for (let j = 0; j < data[i].length; j++) {
+                    const td = document.createElement('td');
+                    td.textContent = data[i][j];
+                    td.dataset.numerator = i + 1;
+                    td.dataset.denominator = 20 + j;
+                    tr.appendChild(td);
+                }
+                tbody.appendChild(tr);
+            }
+        }
+
+        // Calculate percentages
+        function calculate() {
+            // Table 1
+            const t1a = parseInt(document.getElementById('t1-a').value) || 0;
+            const t1b = parseInt(document.getElementById('t1-b').value) || 0;
+            const t1c = parseInt(document.getElementById('t1-c').value) || 0;
+            const t1d = parseInt(document.getElementById('t1-d').value) || 0;
+            const total1 = t1a + t1b + t1c + t1d;
+
+            if (total1 > 0) {
+                document.getElementById('t1-a-pct').textContent = (t1a / total1 * 100).toFixed(1) + '%';
+                document.getElementById('t1-b-pct').textContent = (t1b / total1 * 100).toFixed(1) + '%';
+                document.getElementById('t1-c-pct').textContent = (t1c / total1 * 100).toFixed(1) + '%';
+                document.getElementById('t1-d-pct').textContent = (t1d / total1 * 100).toFixed(1) + '%';
+            } else {
+                document.getElementById('t1-a-pct').textContent = '0%';
+                document.getElementById('t1-b-pct').textContent = '0%';
+                document.getElementById('t1-c-pct').textContent = '0%';
+                document.getElementById('t1-d-pct').textContent = '0%';
+            }
+
+            // Table 2
+            const t2a = parseInt(document.getElementById('t2-a').value) || 0;
+            const t2b = parseInt(document.getElementById('t2-b').value) || 0;
+            const t2c = parseInt(document.getElementById('t2-c').value) || 0;
+            const total2 = t2a + t2b + t2c;
+
+            if (total2 > 0) {
+                document.getElementById('t2-a-pct').textContent = (t2a / total2 * 100).toFixed(1) + '%';
+                document.getElementById('t2-b-pct').textContent = (t2b / total2 * 100).toFixed(1) + '%';
+                document.getElementById('t2-c-pct').textContent = (t2c / total2 * 100).toFixed(1) + '%';
+            } else {
+                document.getElementById('t2-a-pct').textContent = '0%';
+                document.getElementById('t2-b-pct').textContent = '0%';
+                document.getElementById('t2-c-pct').textContent = '0%';
+            }
+
+            document.getElementById('total1').textContent = total1;
+            document.getElementById('total2').textContent = total2;
+
+            // Highlight matching cells in lookup table
+            highlightLookup(total1, total2);
+        }
+
+        // Highlight cells in lookup table based on totals
+        function highlightLookup(total1, total2) {
+            // Remove all highlights
+            document.querySelectorAll('.lookup-table td.highlight').forEach(td => {
+                td.classList.remove('highlight');
+            });
+
+            // Highlight cells where denominator matches total1 or total2
+            document.querySelectorAll('.lookup-table td[data-denominator]').forEach(td => {
+                const denom = parseInt(td.dataset.denominator);
+                if ((denom === total1 || denom === total2) && td.textContent !== '') {
+                    td.classList.add('highlight');
+                }
+            });
+        }
+
+        // Initialize
+        generateLookupTable();
+        calculate();
+
+        // Also trigger on input
+        document.querySelectorAll('input[type="number"]').forEach(input => {
+            input.addEventListener('input', calculate);
+        });
+
+        // i18n
+        const translations = {
+            vi: {
+                'back': '← Quay lại trang chủ',
+                'title': 'Tính Phần Trăm',
+                'subtitle': 'Nhập số lượng và xem tỉ lệ phần trăm tự động',
+                'table-title': 'MỨC ĐẠT ĐƯỢC',
+                'quantity': 'SỐ LƯỢNG',
+                'ratio': 'TỈ LỆ',
+                'total1': 'Tổng số lượng Bảng 1',
+                'total2': 'Tổng số lượng Bảng 2',
+                'lookup-title': 'BẢNG TRA CỨU PHẦN TRĂM',
+                'lookup-corner': 'Tử số \\ Mẫu số'
+            },
+            en: {
+                'back': '← Back to Home',
+                'title': 'Percentage Calculator',
+                'subtitle': 'Enter quantities and see percentages automatically',
+                'table-title': 'ACHIEVEMENT LEVEL',
+                'quantity': 'QUANTITY',
+                'ratio': 'RATIO',
+                'total1': 'Total Table 1',
+                'total2': 'Total Table 2',
+                'lookup-title': 'PERCENTAGE LOOKUP TABLE',
+                'lookup-corner': 'Numerator \\ Denominator'
+            }
+        };
+
+        let currentLang = localStorage.getItem('lang') || 'vi';
+
+        function setLang(lang) {
+            currentLang = lang;
+            localStorage.setItem('lang', lang);
+            document.documentElement.lang = lang;
+            document.getElementById('lang-text').textContent = lang === 'vi' ? 'EN' : 'VI';
+
+            document.querySelectorAll('[data-lang]').forEach(el => {
+                const key = el.getAttribute('data-lang');
+                if (translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+        }
+
+        function toggleLang() {
+            setLang(currentLang === 'vi' ? 'en' : 'vi');
+        }
+
+        // Initialize language
+        setLang(currentLang);
+    </script>
+</body>
+</html>
