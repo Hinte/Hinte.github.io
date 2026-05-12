@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Android API Levels</title>
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --table-border: #e0e0e0;
+            --table-header-bg: #f5f5f5;
+            --progress-bg: #e0e0e0;
+            --progress-fill: #60ECAD;
+            --link-color: #0066cc;
+            --code-bg: #f4f4f4;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #1a1a1a;
+                --text-color: #e0e0e0;
+                --table-border: #404040;
+                --table-header-bg: #2a2a2a;
+                --progress-bg: #404040;
+                --progress-fill: #006236;
+                --link-color: #66b3ff;
+                --code-bg: #2a2a2a;
+            }
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .lang-btn {
+            background: var(--table-header-bg);
+            border: 1px solid var(--table-border);
+            color: var(--text-color);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background 0.3s;
+        }
+
+        .lang-btn:hover {
+            background: var(--progress-fill);
+            color: white;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            margin-top: 2rem;
+            border-bottom: 1px solid var(--table-border);
+            padding-bottom: 0.5rem;
+        }
+
+        a {
+            color: var(--link-color);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .toc {
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: var(--table-header-bg);
+            border-radius: 8px;
+        }
+
+        .toc ul {
+            margin: 0;
+            padding-left: 1.5rem;
+        }
+
+        .toc li {
+            margin: 0.3rem 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 12px 10px;
+            text-align: left;
+            border-bottom: 1px solid var(--table-border);
+        }
+
+        th {
+            background-color: var(--table-header-bg);
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+
+        tr:hover {
+            background-color: var(--table-header-bg);
+        }
+
+        code {
+            background-color: var(--code-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: "SF Mono", Monaco, "Courier New", monospace;
+            font-size: 0.85em;
+        }
+
+        .progress-cell {
+            min-width: 180px;
+        }
+
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .progress-track {
+            flex: 1;
+            height: 8px;
+            background-color: var(--progress-bg);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--progress-fill);
+            border-radius: 4px;
+        }
+
+        .progress-value {
+            min-width: 45px;
+            text-align: right;
+            font-size: 0.85em;
+        }
+
+        .version-name {
+            font-weight: 600;
+        }
+
+        .year {
+            color: #888;
+        }
+
+        .definitions {
+            margin-top: 2rem;
+        }
+
+        .definitions dt {
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+
+        .definitions dd {
+            margin-left: 0;
+            margin-top: 0.3rem;
+        }
+
+        .note {
+            background: var(--table-header-bg);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            table {
+                font-size: 0.85rem;
+            }
+
+            th, td {
+                padding: 8px 6px;
+            }
+
+            .progress-cell {
+                min-width: 120px;
+            }
+
+            .header-container {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="/" class="back-link" data-lang="back">&larr; Back to Home</a>
+
+    <div class="header-container">
+        <h1>Android API Levels</h1>
+        <button class="lang-btn" onclick="toggleLang()">
+            <span id="lang-text">VI</span>
+        </button>
+    </div>
+
+    <p data-lang="intro">A quick reference table of Android versions with API level, version code, codename, and cumulative usage.</p>
+
+    <nav class="toc">
+        <strong data-lang="contents">Contents</strong>
+        <ul>
+            <li><a href="#api-levels" data-lang="toc-api">API Levels Table</a></li>
+            <li><a href="#definitions" data-lang="toc-def">Definitions</a></li>
+            <li><a href="#notes" data-lang="toc-notes">Notes</a></li>
+        </ul>
+    </nav>
+
+    <h2 id="api-levels" data-lang="h2-api">API Levels Table</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th data-lang="th-version">Version</th>
+                <th>API Level</th>
+                <th>Version Code</th>
+                <th>Codename</th>
+                <th class="progress-cell" data-lang="th-usage">Cumulative Usage</th>
+                <th data-lang="th-year">Year</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="version-name">Android 16</td>
+                <td>36</td>
+                <td><code>BAKLAVA</code></td>
+                <td>Baklava</td>
+                <td class="progress-cell">
+                    <div class="progress-bar">
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 4.6%"></div>
+                        </div>
+                        <span class="progress-value">4.6%</span>
+                    </div>
+                </td>
+                <td class="year">2025</td>
+            </tr>
+            <tr>
+                <td class="version-name">Android 15</td>
+                <td>35</td>
+                <td><code>VANILLA_ICE_CREAM</code></td>
+                <td>Vanilla Ice Cream</td>
+                <td class="progress-cell">
+                    <div class="progress-bar">
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 34.4%"></div>
+                        </div>
+                        <span class="progress-value">34.4%</span>
+                    </div>
+                </td>
+                <td class="year">2024</td>
+            </tr>
+            <tr>
+                <td class="version-name">Android 14</td>
+                <td>34</td>
+                <td><code>UPSIDE_DOWN_CAKE</code></td>
+                <td>Upside Down Cake</td>
+                <td class="progress-cell">
+                    <div class="progress-bar">
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 49.4%"></div>
+                        </div>
+                        <span class="progress-value">49.4%</span>
+                    </div>
+                </td>
+                <td class="year">2023</td>
+            </tr>
+            <tr>
+                <td class="version-name">Android 13</td>
+                <td>33</td>
+                <td><code>TIRAMISU</code></td>
+                <td>Tiramisu</td>
+                <td class="progress-cell">
+                    <div class="progress-bar">
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 64.4%"></div>
+                        </div>
+                        <span class="progress-value">64.4%</span>
+                    </div>
+                </td>
+                <td class="year">2022</td>
+            </tr>
+            <tr>
+                <td class="version-name">Android 12L</td>
+                <td>32</td>
+                <td><code>S_V2</code></td>
+                <td>Snow Cone v2</td>
+                <td class="progress-cell">
+                    <div class="progress-bar">
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 68.5%"></div>
+                        </div>
+                        <span class="progress-value">68.5%</span>
+                    </div>
+                </td>
+                <td class="year">2022</td>
+            </tr>
+            <tr>
+                <td class="version-name">Android 12</td>
+                <td>31</td>
+                <td><code>S</code></td>
+                <td>Snow Cone</td>
+                <td class="progress-cell">
+                    <div class="progress-bar">
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 75.3%"></div>
+                        </div>
+                        <span class="progress-value">75.3%</span>
+                    </div>
+                </td>
+                <td class="year">2021</td>
+            </tr>
+            <tr>
+                <td class="version-name">Android 11</td>
+                <td>30</td>
+                <td><code>R</code></td>
+                <td>Red Velvet Cake</td>
+                <td class="progress-cell">
+                    <div class="progress-bar">
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 84.5%"></div>
+                        </div>
+                        <span class="progress-value">84.5%</span>
+                    </div>
+                </td>
+                <td class="year">2020</td>
+            </tr>
+            <tr>
+                <td class="version-name">Android 10</td>
+                <td>29</td>
+                <td><code>Q</code></td>
+                <td>Quince Tart</td>
+                <td class="progress-cell">
+                    <div class="progress-bar">
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 91.2%"></div>
+                        </div>
+                        <span class="progress-value">91.2%</span>
+                    </div>
+                </td>
+                <td class="year">2019</td>
+            </tr>
+            <tr>
+                <td class="version-name">Android 9</td>
+                <td>28</td>
+                <td><code>P</code></td>
+                <td>Pie</td>
+                <td class="progress-cell">
+                    <div class="progress-bar">
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 94.1%"></div>
+                        </div>
+                        <span class="progress-value">94.1%</span>
+                    </div>
+                </td>
+                <td class="year">2018</td>
+            </tr>
+            <tr>
+                <td class="version-name">Android 8.1</td>
+                <td>27</td>
+                <td><code>O_MR1</code></td>
+                <td>Oreo</td>
+                <td class="progress-cell">
+                    <div class="progress-bar">
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 95.8%"></div>
+                        </div>
+                        <span class="progress-value">95.8%</span>
+                    </div>
+                </td>
+                <td class="year">2017</td>
+            </tr>
+            <tr>
+                <td class="version-name">Android 8.0</td>
+                <td>26</td>
+                <td><code>O</code></td>
+                <td>Oreo</td>
+                <td class="progress-cell">
+                    <div class="progress-bar">
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 96.9%"></div>
+                        </div>
+                        <span class="progress-value">96.9%</span>
+                    </div>
+                </td>
+                <td class="year">2017</td>
+            </tr>
+            <tr>
+                <td class="version-name">Android 7.1</td>
+                <td>25</td>
+                <td><code>N_MR1</code></td>
+                <td>Nougat</td>
+                <td class="progress-cell">
+                    <div class="progress-bar">
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 97.5%"></div>
+                        </div>
+                        <span class="progress-value">97.5%</span>
+                    </div>
+                </td>
+                <td class="year">2016</td>
+            </tr>
+            <tr>
+                <td class="version-name">Android 7.0</td>
+                <td>24</td>
+                <td><code>N</code></td>
+                <td>Nougat</td>
+                <td class="progress-cell">
+                    <div class="progress-bar">
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 98.1%"></div>
+                        </div>
+                        <span class="progress-value">98.1%</span>
+                    </div>
+                </td>
+                <td class="year">2016</td>
+            </tr>
+            <tr>
+                <td class="version-name">Android 6.0</td>
+                <td>23</td>
+                <td><code>M</code></td>
+                <td>Marshmallow</td>
+                <td class="progress-cell">
+                    <div class="progress-bar">
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 98.7%"></div>
+                        </div>
+                        <span class="progress-value">98.7%</span>
+                    </div>
+                </td>
+                <td class="year">2015</td>
+            </tr>
+            <tr>
+                <td class="version-name">Android 5.1</td>
+                <td>22</td>
+                <td><code>LOLLIPOP_MR1</code></td>
+                <td>Lollipop</td>
+                <td class="progress-cell">
+                    <div class="progress-bar">
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 99.1%"></div>
+                        </div>
+                        <span class="progress-value">99.1%</span>
+                    </div>
+                </td>
+                <td class="year">2015</td>
+            </tr>
+            <tr>
+                <td class="version-name">Android 5.0</td>
+                <td>21</td>
+                <td><code>LOLLIPOP</code></td>
+                <td>Lollipop</td>
+                <td class="progress-cell">
+                    <div class="progress-bar">
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 99.4%"></div>
+                        </div>
+                        <span class="progress-value">99.4%</span>
+                    </div>
+                </td>
+                <td class="year">2014</td>
+            </tr>
+            <tr>
+                <td class="version-name">Android 4.4W</td>
+                <td>20</td>
+                <td><code>KITKAT_WATCH</code></td>
+                <td>KitKat (Wear)</td>
+                <td class="progress-cell">
+                    <div class="progress-bar">
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 99.4%"></div>
+                        </div>
+                        <span class="progress-value">99.4%</span>
+                    </div>
+                </td>
+                <td class="year">2014</td>
+            </tr>
+            <tr>
+                <td class="version-name">Android 4.4</td>
+                <td>19</td>
+                <td><code>KITKAT</code></td>
+                <td>KitKat</td>
+                <td class="progress-cell">
+                    <div class="progress-bar">
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 99.6%"></div>
+                        </div>
+                        <span class="progress-value">99.6%</span>
+                    </div>
+                </td>
+                <td class="year">2013</td>
+            </tr>
+            <tr>
+                <td class="version-name">Android 4.3</td>
+                <td>18</td>
+                <td><code>JELLY_BEAN_MR2</code></td>
+                <td>Jelly Bean</td>
+                <td class="progress-cell">
+                    <div class="progress-bar">
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 99.7%"></div>
+                        </div>
+                        <span class="progress-value">99.7%</span>
+                    </div>
+                </td>
+                <td class="year">2013</td>
+            </tr>
+            <tr>
+                <td class="version-name">Android 4.2</td>
+                <td>17</td>
+                <td><code>JELLY_BEAN_MR1</code></td>
+                <td>Jelly Bean</td>
+                <td class="progress-cell">
+                    <div class="progress-bar">
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 99.8%"></div>
+                        </div>
+                        <span class="progress-value">99.8%</span>
+                    </div>
+                </td>
+                <td class="year">2012</td>
+            </tr>
+            <tr>
+                <td class="version-name">Android 4.1</td>
+                <td>16</td>
+                <td><code>JELLY_BEAN</code></td>
+                <td>Jelly Bean</td>
+                <td class="progress-cell">
+                    <div class="progress-bar">
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 99.8%"></div>
+                        </div>
+                        <span class="progress-value">99.8%</span>
+                    </div>
+                </td>
+                <td class="year">2012</td>
+            </tr>
+            <tr>
+                <td class="version-name">Android 4.0.3</td>
+                <td>15</td>
+                <td><code>ICE_CREAM_SANDWICH_MR1</code></td>
+                <td>Ice Cream Sandwich</td>
+                <td class="progress-cell">
+                    <div class="progress-bar">
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 99.9%"></div>
+                        </div>
+                        <span class="progress-value">99.9%</span>
+                    </div>
+                </td>
+                <td class="year">2011</td>
+            </tr>
+            <tr>
+                <td class="version-name">Android 4.0</td>
+                <td>14</td>
+                <td><code>ICE_CREAM_SANDWICH</code></td>
+                <td>Ice Cream Sandwich</td>
+                <td class="progress-cell">
+                    <div class="progress-bar">
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 99.9%"></div>
+                        </div>
+                        <span class="progress-value">99.9%</span>
+                    </div>
+                </td>
+                <td class="year">2011</td>
+            </tr>
+            <tr>
+                <td class="version-name">Android 3.2</td>
+                <td>13</td>
+                <td><code>HONEYCOMB_MR2</code></td>
+                <td>Honeycomb</td>
+                <td class="progress-cell">
+                    <div class="progress-bar">
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 99.9%"></div>
+                        </div>
+                        <span class="progress-value">99.9%</span>
+                    </div>
+                </td>
+                <td class="year">2011</td>
+            </tr>
+            <tr>
+                <td class="version-name">Android 3.1</td>
+                <td>12</td>
+                <td><code>HONEYCOMB_MR1</code></td>
+                <td>Honeycomb</td>
+                <td class="progress-cell">
+                    <div class="progress-bar">
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 99.9%"></div>
+                        </div>
+                        <span class="progress-value">99.9%</span>
+                    </div>
+                </td>
+                <td class="year">2011</td>
+            </tr>
+            <tr>
+                <td class="version-name">Android 3.0</td>
+                <td>11</td>
+                <td><code>HONEYCOMB</code></td>
+                <td>Honeycomb</td>
+                <td class="progress-cell">
+                    <div class="progress-bar">
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 99.9%"></div>
+                        </div>
+                        <span class="progress-value">99.9%</span>
+                    </div>
+                </td>
+                <td class="year">2011</td>
+            </tr>
+            <tr>
+                <td class="version-name">Android 2.3.3</td>
+                <td>10</td>
+                <td><code>GINGERBREAD_MR1</code></td>
+                <td>Gingerbread</td>
+                <td class="progress-cell">
+                    <div class="progress-bar">
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 100%"></div>
+                        </div>
+                        <span class="progress-value">100%</span>
+                    </div>
+                </td>
+                <td class="year">2011</td>
+            </tr>
+            <tr>
+                <td class="version-name">Android 2.3</td>
+                <td>9</td>
+                <td><code>GINGERBREAD</code></td>
+                <td>Gingerbread</td>
+                <td class="progress-cell">
+                    <div class="progress-bar">
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 100%"></div>
+                        </div>
+                        <span class="progress-value">100%</span>
+                    </div>
+                </td>
+                <td class="year">2010</td>
+            </tr>
+            <tr>
+                <td class="version-name">Android 2.2</td>
+                <td>8</td>
+                <td><code>FROYO</code></td>
+                <td>Froyo</td>
+                <td class="progress-cell">
+                    <div class="progress-bar">
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 100%"></div>
+                        </div>
+                        <span class="progress-value">100%</span>
+                    </div>
+                </td>
+                <td class="year">2010</td>
+            </tr>
+            <tr>
+                <td class="version-name">Android 2.1</td>
+                <td>7</td>
+                <td><code>ECLAIR_MR1</code></td>
+                <td>Eclair</td>
+                <td class="progress-cell">
+                    <div class="progress-bar">
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 100%"></div>
+                        </div>
+                        <span class="progress-value">100%</span>
+                    </div>
+                </td>
+                <td class="year">2010</td>
+            </tr>
+            <tr>
+                <td class="version-name">Android 2.0.1</td>
+                <td>6</td>
+                <td><code>ECLAIR_0_1</code></td>
+                <td>Eclair</td>
+                <td class="progress-cell">
+                    <div class="progress-bar">
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 100%"></div>
+                        </div>
+                        <span class="progress-value">100%</span>
+                    </div>
+                </td>
+                <td class="year">2009</td>
+            </tr>
+            <tr>
+                <td class="version-name">Android 2.0</td>
+                <td>5</td>
+                <td><code>ECLAIR</code></td>
+                <td>Eclair</td>
+                <td class="progress-cell">
+                    <div class="progress-bar">
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 100%"></div>
+                        </div>
+                        <span class="progress-value">100%</span>
+                    </div>
+                </td>
+                <td class="year">2009</td>
+            </tr>
+            <tr>
+                <td class="version-name">Android 1.6</td>
+                <td>4</td>
+                <td><code>DONUT</code></td>
+                <td>Donut</td>
+                <td class="progress-cell">
+                    <div class="progress-bar">
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 100%"></div>
+                        </div>
+                        <span class="progress-value">100%</span>
+                    </div>
+                </td>
+                <td class="year">2009</td>
+            </tr>
+            <tr>
+                <td class="version-name">Android 1.5</td>
+                <td>3</td>
+                <td><code>CUPCAKE</code></td>
+                <td>Cupcake</td>
+                <td class="progress-cell">
+                    <div class="progress-bar">
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 100%"></div>
+                        </div>
+                        <span class="progress-value">100%</span>
+                    </div>
+                </td>
+                <td class="year">2009</td>
+            </tr>
+            <tr>
+                <td class="version-name">Android 1.1</td>
+                <td>2</td>
+                <td><code>BASE_1_1</code></td>
+                <td>Petit Four</td>
+                <td class="progress-cell">
+                    <div class="progress-bar">
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 100%"></div>
+                        </div>
+                        <span class="progress-value">100%</span>
+                    </div>
+                </td>
+                <td class="year">2009</td>
+            </tr>
+            <tr>
+                <td class="version-name">Android 1.0</td>
+                <td>1</td>
+                <td><code>BASE</code></td>
+                <td>-</td>
+                <td class="progress-cell">
+                    <div class="progress-bar">
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 100%"></div>
+                        </div>
+                        <span class="progress-value">100%</span>
+                    </div>
+                </td>
+                <td class="year">2008</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2 id="definitions" data-lang="h2-def">Definitions</h2>
+
+    <dl class="definitions">
+        <dt><code>minSdk</code></dt>
+        <dd data-lang="def-minsdk">The minimum API level required for your app to run. Devices with lower API levels cannot install the app.</dd>
+
+        <dt><code>targetSdk</code></dt>
+        <dd data-lang="def-targetsdk">The API level your app is designed and tested against. This enables compatibility behaviors on newer Android versions.</dd>
+
+        <dt><code>compileSdk</code></dt>
+        <dd data-lang="def-compilesdk">The API level used to compile your app. This determines which Android APIs are available during development.</dd>
+
+        <dt><code>Build.VERSION.SDK_INT</code></dt>
+        <dd data-lang="def-sdkint">A runtime constant representing the API level of the device running your app. Use this to conditionally execute code based on the device's Android version.</dd>
+    </dl>
+
+    <h2 id="notes" data-lang="h2-notes">Notes</h2>
+
+    <div class="note">
+        <p><strong data-lang="note-usage-title">Cumulative Usage</strong> <span data-lang="note-usage">represents the percentage of devices running that API level or higher. Data is based on devices visiting the Google Play Store.</span></p>
+        <p><strong>Version Code</strong> <span data-lang="note-versioncode">constants are available in</span> <code>android.os.Build.VERSION_CODES</code>.</p>
+    </div>
+
+    <footer style="margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--table-border); color: #888; font-size: 0.85rem;">
+        <p>Reference: <a href="https://apilevels.com/">apilevels.com</a> | <a href="https://developer.android.com/guide/topics/manifest/uses-sdk-element">Android Documentation</a></p>
+    </footer>
+
+    <script>
+        const translations = {
+            en: {
+                'back': '← Back to Home',
+                'intro': 'A quick reference table of Android versions with API level, version code, codename, and cumulative usage.',
+                'contents': 'Contents',
+                'toc-api': 'API Levels Table',
+                'toc-def': 'Definitions',
+                'toc-notes': 'Notes',
+                'h2-api': 'API Levels Table',
+                'h2-def': 'Definitions',
+                'h2-notes': 'Notes',
+                'th-version': 'Version',
+                'th-usage': 'Cumulative Usage',
+                'th-year': 'Year',
+                'def-minsdk': 'The minimum API level required for your app to run. Devices with lower API levels cannot install the app.',
+                'def-targetsdk': 'The API level your app is designed and tested against. This enables compatibility behaviors on newer Android versions.',
+                'def-compilesdk': 'The API level used to compile your app. This determines which Android APIs are available during development.',
+                'def-sdkint': 'A runtime constant representing the API level of the device running your app. Use this to conditionally execute code based on the device\'s Android version.',
+                'note-usage-title': 'Cumulative Usage',
+                'note-usage': 'represents the percentage of devices running that API level or higher. Data is based on devices visiting the Google Play Store.',
+                'note-versioncode': 'constants are available in'
+            },
+            vi: {
+                'back': '← Quay lại Trang chủ',
+                'intro': 'Bảng tra cứu nhanh các phiên bản Android với API level, version code, codename và tỷ lệ sử dụng tích lũy.',
+                'contents': 'Mục lục',
+                'toc-api': 'Bảng API Levels',
+                'toc-def': 'Định nghĩa',
+                'toc-notes': 'Ghi chú',
+                'h2-api': 'Bảng API Levels',
+                'h2-def': 'Định nghĩa',
+                'h2-notes': 'Ghi chú',
+                'th-version': 'Phiên bản',
+                'th-usage': 'Tỷ lệ sử dụng tích lũy',
+                'th-year': 'Năm',
+                'def-minsdk': 'API level tối thiểu để ứng dụng của bạn chạy được. Thiết bị có API level thấp hơn không thể cài đặt ứng dụng.',
+                'def-targetsdk': 'API level mà ứng dụng của bạn được thiết kế và kiểm thử. Điều này cho phép các hành vi tương thích trên các phiên bản Android mới hơn.',
+                'def-compilesdk': 'API level dùng để biên dịch ứng dụng của bạn. Điều này xác định những API Android nào có sẵn trong quá trình phát triển.',
+                'def-sdkint': 'Hằng số runtime đại diện cho API level của thiết bị đang chạy ứng dụng của bạn. Sử dụng để thực thi code có điều kiện dựa trên phiên bản Android của thiết bị.',
+                'note-usage-title': 'Tỷ lệ sử dụng tích lũy',
+                'note-usage': 'đại diện cho phần trăm thiết bị chạy API level đó hoặc cao hơn. Dữ liệu dựa trên các thiết bị truy cập Google Play Store.',
+                'note-versioncode': 'các hằng số có sẵn trong'
+            }
+        };
+
+        let currentLang = localStorage.getItem('lang') || 'vi';
+
+        function setLang(lang) {
+            currentLang = lang;
+            localStorage.setItem('lang', lang);
+            document.documentElement.lang = lang;
+            document.getElementById('lang-text').textContent = lang === 'vi' ? 'EN' : 'VI';
+
+            document.querySelectorAll('[data-lang]').forEach(el => {
+                const key = el.getAttribute('data-lang');
+                if (translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+        }
+
+        function toggleLang() {
+            setLang(currentLang === 'vi' ? 'en' : 'vi');
+        }
+
+        // Initialize
+        setLang(currentLang);
+    </script>
+</body>
+</html>

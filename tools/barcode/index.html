@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barcode Generator - Hinte Tools</title>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container { max-width: 1000px; margin: 0 auto; }
+
+        header { text-align: center; margin-bottom: 20px; }
+        header h1 { color: #333; font-size: 1.8rem; margin-bottom: 5px; }
+
+        .back-link { color: #667eea; text-decoration: none; font-size: 0.9rem; }
+        .back-link:hover { text-decoration: underline; }
+
+        .type-selector { margin-bottom: 20px; }
+        .type-selector select {
+            width: 100%;
+            padding: 12px 15px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+        }
+        .type-selector select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .main-content { display: flex; gap: 20px; align-items: stretch; }
+
+        .input-panel {
+            flex: 1;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .input-panel h2 { font-size: 1.3rem; color: #333; margin-bottom: 15px; font-weight: 500; }
+        .input-panel label { font-size: 0.9rem; color: #555; margin-bottom: 8px; display: block; }
+        .input-panel textarea {
+            flex: 1;
+            min-height: 150px;
+            padding: 12px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            resize: vertical;
+            font-family: inherit;
+        }
+        .input-panel textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .refresh-link { text-align: right; margin-top: 10px; }
+        .refresh-link a { color: #667eea; text-decoration: none; font-size: 0.9rem; cursor: pointer; }
+        .refresh-link a:hover { text-decoration: underline; }
+
+        .output-panel {
+            flex: 1;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+        .settings-icon {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            color: #999;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+        .settings-icon:hover { color: #667eea; }
+
+        .barcode-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            min-height: 200px;
+        }
+        #barcode-output { max-width: 100%; }
+        #barcode-svg { max-width: 100%; height: auto; }
+        #qr-container { max-width: 100%; }
+
+        .action-btns {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .download-btn {
+            flex: 1;
+            padding: 14px;
+            background: #c62828;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+        .download-btn:hover { background: #b71c1c; }
+
+        .save-btn {
+            flex: 1;
+            padding: 14px;
+            background: #2e7d32;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+        .save-btn:hover { background: #1b5e20; }
+        .action-btns svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+        /* Modals */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active { display: flex; }
+
+        .modal {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+        }
+        .modal h3 { margin-bottom: 20px; color: #333; }
+        .modal-field { margin-bottom: 15px; }
+        .modal-field label { display: block; margin-bottom: 5px; font-size: 0.9rem; color: #555; }
+        .modal-field input,
+        .modal-field select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        .modal-field input:focus,
+        .modal-field select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+        .modal-buttons { display: flex; gap: 10px; margin-top: 20px; }
+        .modal-buttons button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        .btn-cancel { background: #eee; color: #333; }
+        .btn-cancel:hover { background: #e0e0e0; }
+        .btn-apply { background: #667eea; color: white; }
+        .btn-apply:hover { background: #5a6fd6; }
+        .btn-save { background: #2e7d32; color: white; }
+        .btn-save:hover { background: #1b5e20; }
+
+        .error-msg {
+            color: #c62828;
+            font-size: 0.9rem;
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* ===== LIBRARY ===== */
+        .library-section {
+            margin-top: 28px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .library-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 20px;
+            background: #f9f9f9;
+            border-bottom: 1px solid #eee;
+        }
+
+        .library-header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .library-title {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .library-count {
+            background: #667eea;
+            color: white;
+            border-radius: 12px;
+            padding: 2px 9px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        .btn-add-group {
+            padding: 7px 14px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-family: inherit;
+        }
+        .btn-add-group:hover { background: #5a6fd6; }
+
+        .library-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-secondary {
+            padding: 7px 12px;
+            background: white;
+            color: #555;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-secondary:hover { background: #f5f5f5; border-color: #bbb; }
+        .btn-secondary svg { width: 14px; height: 14px; }
+
+        .import-summary {
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            color: #555;
+            background: #f5f5f5;
+            padding: 10px 12px;
+            border-radius: 6px;
+        }
+        .btn-danger { background: #c62828; color: white; }
+        .btn-danger:hover { background: #b71c1c; }
+
+        .library-empty {
+            padding: 40px;
+            text-align: center;
+            color: #aaa;
+            font-size: 0.93rem;
+        }
+
+        /* Group */
+        .group-panel { border-bottom: 1px solid #f0f0f0; }
+        .group-panel:last-child { border-bottom: none; }
+
+        .group-header {
+            display: flex;
+            align-items: center;
+            padding: 11px 20px;
+            background: #fafafa;
+            cursor: pointer;
+            user-select: none;
+            gap: 8px;
+            transition: background 0.15s;
+        }
+        .group-header:hover { background: #f0f0f0; }
+
+        .group-toggle {
+            color: #888;
+            font-size: 0.65rem;
+            transition: transform 0.2s;
+            flex-shrink: 0;
+            width: 12px;
+        }
+        .group-toggle.collapsed { transform: rotate(-90deg); }
+
+        .group-icon { font-size: 1rem; flex-shrink: 0; }
+
+        .group-name-display {
+            font-weight: 500;
+            color: #333;
+            font-size: 0.93rem;
+            flex: 1;
+        }
+
+        .group-count {
+            color: #aaa;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        .group-actions {
+            display: flex;
+            gap: 2px;
+            flex-shrink: 0;
+        }
+
+        .group-action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #bbb;
+            font-size: 0.82rem;
+            padding: 4px 6px;
+            border-radius: 4px;
+            line-height: 1;
+        }
+        .group-action-btn:hover { background: #e8e8e8; color: #555; }
+        .group-action-btn.danger:hover { background: #ffebee; color: #c62828; }
+
+        /* Barcode grid */
+        .group-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+            gap: 12px;
+            padding: 14px 20px;
+        }
+        .group-items.collapsed { display: none; }
+
+        /* Barcode card */
+        .bc-card {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            overflow: hidden;
+            background: white;
+            transition: box-shadow 0.2s, border-color 0.2s;
+            cursor: pointer;
+        }
+        .bc-card:hover {
+            box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+
+        .bc-thumb {
+            width: 100%;
+            height: 96px;
+            object-fit: contain;
+            background: #f8f8f8;
+            display: block;
+            padding: 8px;
+        }
+
+        .bc-body { padding: 10px 11px 11px; }
+
+        .bc-label {
+            font-weight: 600;
+            font-size: 0.88rem;
+            color: #222;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 3px;
+        }
+
+        .bc-value {
+            font-size: 0.76rem;
+            color: #888;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 8px;
+        }
+
+        .bc-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .bc-type {
+            background: #e8eaf6;
+            color: #3949ab;
+            border-radius: 4px;
+            padding: 2px 7px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .bc-card-actions { display: flex; gap: 2px; }
+
+        .bc-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 3px 5px;
+            border-radius: 4px;
+            font-size: 0.82rem;
+            color: #bbb;
+            line-height: 1;
+        }
+        .bc-btn:hover { background: #eee; color: #555; }
+        .bc-btn.danger:hover { background: #ffebee; color: #c62828; }
+
+        @media (max-width: 768px) {
+            .main-content { flex-direction: column; }
+            .action-btns { flex-direction: column; }
+            .group-items { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <a href="/" class="back-link" data-lang="back">&larr; Quay lại trang chủ</a>
+                <button onclick="toggleLang()" style="background: #667eea; border: none; color: white; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 0.85rem;">
+                    <span id="lang-text">EN</span>
+                </button>
+            </div>
+            <h1>Barcode Generator</h1>
+        </header>
+
+        <div class="type-selector">
+            <select id="barcode-type" onchange="updateBarcodeType()">
+                <option value="qrcode">QR Code</option>
+                <option value="code128">Code 128</option>
+                <option value="code39">Code 39</option>
+                <option value="ean13">EAN-13</option>
+                <option value="ean8">EAN-8</option>
+                <option value="upc">UPC-A</option>
+            </select>
+        </div>
+
+        <div class="main-content">
+            <div class="input-panel">
+                <h2 id="panel-title">QR Code</h2>
+                <label for="data-input" data-lang="data-label">Data</label>
+                <textarea id="data-input" placeholder="Nhập nội dung..." oninput="generateBarcode()">Hello World</textarea>
+                <div class="refresh-link">
+                    <a onclick="generateBarcode()" data-lang="refresh">Làm mới</a>
+                </div>
+            </div>
+
+            <div class="output-panel">
+                <span class="settings-icon" onclick="openSettings()">&#9881;</span>
+                <div class="barcode-container" id="barcode-output">
+                    <div id="qr-container"></div>
+                    <svg id="barcode-svg"></svg>
+                </div>
+                <div class="action-btns">
+                    <button class="save-btn" onclick="openSaveModal()">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/>
+                        </svg>
+                        <span data-lang="save">Lưu</span>
+                    </button>
+                    <button class="download-btn" onclick="downloadBarcode()">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                        </svg>
+                        <span data-lang="download">Tải về</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Library -->
+        <div class="library-section">
+            <div class="library-header">
+                <div class="library-header-left">
+                    <span class="library-title" data-lang="saved-barcodes">Barcode đã lưu</span>
+                    <span class="library-count" id="library-count">0</span>
+                </div>
+                <div class="library-header-actions">
+                    <button class="btn-secondary" onclick="exportLibrary()" title="Export library to JSON">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                        <span data-lang="export">Export</span>
+                    </button>
+                    <button class="btn-secondary" onclick="triggerImport()" title="Import library from JSON">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg>
+                        <span data-lang="import">Import</span>
+                    </button>
+                    <button class="btn-add-group" onclick="addGroup()">+ <span data-lang="new-group">Nhóm mới</span></button>
+                </div>
+            </div>
+            <div id="library-content"></div>
+        </div>
+    </div>
+
+    <input type="file" id="import-file-input" accept="application/json,.json" style="display:none" onchange="handleImportFile(event)">
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settings-modal">
+        <div class="modal">
+            <h3 data-lang="settings">Cài đặt</h3>
+            <div class="modal-field">
+                <label data-lang="width">Chiều rộng</label>
+                <input type="number" id="setting-width" value="300" min="100" max="1000">
+            </div>
+            <div class="modal-field">
+                <label data-lang="height">Chiều cao</label>
+                <input type="number" id="setting-height" value="300" min="100" max="1000">
+            </div>
+            <div class="modal-field">
+                <label data-lang="bg-color">Màu nền</label>
+                <input type="color" id="setting-bg" value="#ffffff">
+            </div>
+            <div class="modal-field">
+                <label data-lang="fg-color">Màu mã vạch</label>
+                <input type="color" id="setting-fg" value="#000000">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="closeSettings()" data-lang="cancel">Hủy</button>
+                <button class="btn-apply" onclick="applySettings()" data-lang="apply">Áp dụng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Modal -->
+    <div class="modal-overlay" id="save-modal">
+        <div class="modal">
+            <h3 data-lang="save-title">Lưu Barcode</h3>
+            <div class="modal-field">
+                <label data-lang="save-label-lbl">Nhãn</label>
+                <input type="text" id="save-label-input" placeholder="Barcode name...">
+            </div>
+            <div class="modal-field">
+                <label data-lang="save-group-lbl">Nhóm</label>
+                <select id="save-group-select">
+                    <option value="" data-lang="ungrouped">— Ungrouped —</option>
+                </select>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="closeSaveModal()" data-lang="cancel">Hủy</button>
+                <button class="btn-save" onclick="confirmSave()" data-lang="save-confirm">Lưu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Modal -->
+    <div class="modal-overlay" id="import-modal">
+        <div class="modal" style="max-width:380px">
+            <h3 data-lang="import-title">Import Barcodes</h3>
+            <div class="import-summary" id="import-summary-text"></div>
+            <p data-lang="import-desc" style="margin-bottom:15px; font-size:0.9rem; color:#555;">Choose how to import this file.</p>
+            <div class="modal-buttons" style="flex-direction:column; gap:8px;">
+                <button class="btn-save" onclick="confirmImport('merge')" data-lang="import-merge">Merge with existing</button>
+                <button class="btn-apply btn-danger" onclick="confirmImport('replace')" data-lang="import-replace">Replace all existing</button>
+                <button class="btn-cancel" onclick="closeImportModal()" data-lang="cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Move to Group Modal -->
+    <div class="modal-overlay" id="move-modal">
+        <div class="modal" style="max-width:320px">
+            <h3 data-lang="move-title">Chuyển nhóm</h3>
+            <div class="modal-field">
+                <label data-lang="move-group-lbl">Chọn nhóm</label>
+                <select id="move-group-select">
+                    <option value="">— Ungrouped —</option>
+                </select>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="closeMoveModal()" data-lang="cancel">Hủy</button>
+                <button class="btn-apply" onclick="confirmMove()" data-lang="move-confirm">Chuyển</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== GENERATOR =====
+        let currentType = 'qrcode';
+        let qrcode = null;
+        let settings = { width: 300, height: 300, bgColor: '#ffffff', fgColor: '#000000' };
+
+        const typeNames = {
+            'qrcode': 'QR Code', 'code128': 'Code 128', 'code39': 'Code 39',
+            'ean13': 'EAN-13', 'ean8': 'EAN-8', 'upc': 'UPC-A'
+        };
+
+        function generateBarcode() {
+            const data = document.getElementById('data-input').value;
+            const qrContainer = document.getElementById('qr-container');
+            const barcodeSvg = document.getElementById('barcode-svg');
+            const output = document.getElementById('barcode-output');
+
+            const existingError = output.querySelector('.error-msg');
+            if (existingError) existingError.remove();
+
+            if (!data) {
+                qrContainer.style.display = 'none';
+                barcodeSvg.style.display = 'none';
+                return;
+            }
+
+            try {
+                if (currentType === 'qrcode') {
+                    qrContainer.style.display = 'block';
+                    barcodeSvg.style.display = 'none';
+                    qrContainer.innerHTML = '';
+                    qrcode = new QRCode(qrContainer, {
+                        text: data, width: settings.width, height: settings.height,
+                        colorDark: settings.fgColor, colorLight: settings.bgColor,
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
+                } else {
+                    qrContainer.style.display = 'none';
+                    barcodeSvg.style.display = 'block';
+                    const fmtMap = { code128: 'CODE128', code39: 'CODE39', ean13: 'EAN13', ean8: 'EAN8', upc: 'UPC' };
+                    JsBarcode(barcodeSvg, data, {
+                        format: fmtMap[currentType] || 'CODE128',
+                        width: 2,
+                        height: settings.height > 100 ? settings.height - 50 : 100,
+                        displayValue: true,
+                        background: settings.bgColor,
+                        lineColor: settings.fgColor,
+                        margin: 10, fontSize: 16, textMargin: 5
+                    });
+                }
+            } catch (err) {
+                showError(t('error-prefix') + err.message);
+            }
+        }
+
+        function showError(msg) {
+            const output = document.getElementById('barcode-output');
+            document.getElementById('qr-container').style.display = 'none';
+            document.getElementById('barcode-svg').style.display = 'none';
+            const old = output.querySelector('.error-msg');
+            if (old) old.remove();
+            const div = document.createElement('div');
+            div.className = 'error-msg';
+            div.textContent = msg;
+            output.appendChild(div);
+        }
+
+        function captureCurrentBarcode() {
+            return new Promise((resolve, reject) => {
+                if (currentType === 'qrcode') {
+                    const canvas = document.querySelector('#qr-container canvas');
+                    if (canvas) resolve(canvas.toDataURL('image/png'));
+                    else reject(new Error('No QR code generated'));
+                } else {
+                    const svg = document.getElementById('barcode-svg');
+                    if (!svg || !svg.childElementCount) { reject(new Error('No barcode generated')); return; }
+                    const svgData = new XMLSerializer().serializeToString(svg);
+                    const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+                    const url = URL.createObjectURL(blob);
+                    const img = new Image();
+                    img.onload = function () {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = img.width || 300;
+                        canvas.height = img.height || 150;
+                        const ctx = canvas.getContext('2d');
+                        ctx.fillStyle = settings.bgColor;
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        ctx.drawImage(img, 0, 0);
+                        URL.revokeObjectURL(url);
+                        resolve(canvas.toDataURL('image/png'));
+                    };
+                    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Failed to render')); };
+                    img.src = url;
+                }
+            });
+        }
+
+        function downloadBarcode() {
+            const data = document.getElementById('data-input').value;
+            if (!data) return;
+            captureCurrentBarcode().then(dataUrl => {
+                const a = document.createElement('a');
+                a.download = `barcode-${currentType}-${Date.now()}.png`;
+                a.href = dataUrl;
+                a.click();
+            }).catch(err => alert(err.message));
+        }
+
+        function updateBarcodeType() {
+            currentType = document.getElementById('barcode-type').value;
+            document.getElementById('panel-title').textContent = typeNames[currentType];
+            updatePlaceholder();
+            const input = document.getElementById('data-input');
+            if (currentType === 'ean13' && !/^\d{12,13}$/.test(input.value)) input.value = '5901234123457';
+            if (currentType === 'ean8' && !/^\d{7,8}$/.test(input.value)) input.value = '96385074';
+            if (currentType === 'upc' && !/^\d{11,12}$/.test(input.value)) input.value = '012345678905';
+            generateBarcode();
+        }
+
+        function openSettings() {
+            document.getElementById('setting-width').value = settings.width;
+            document.getElementById('setting-height').value = settings.height;
+            document.getElementById('setting-bg').value = settings.bgColor;
+            document.getElementById('setting-fg').value = settings.fgColor;
+            document.getElementById('settings-modal').classList.add('active');
+        }
+        function closeSettings() { document.getElementById('settings-modal').classList.remove('active'); }
+        function applySettings() {
+            settings.width = parseInt(document.getElementById('setting-width').value) || 300;
+            settings.height = parseInt(document.getElementById('setting-height').value) || 300;
+            settings.bgColor = document.getElementById('setting-bg').value;
+            settings.fgColor = document.getElementById('setting-fg').value;
+            closeSettings();
+            generateBarcode();
+        }
+        document.getElementById('settings-modal').addEventListener('click', function (e) { if (e.target === this) closeSettings(); });
+
+        // ===== LIBRARY =====
+        let library = (function () {
+            try { return JSON.parse(localStorage.getItem('barcode-library') || '{"groups":[],"barcodes":[]}'); }
+            catch (e) { return { groups: [], barcodes: [] }; }
+        })();
+
+        function saveLibrary() {
+            try { localStorage.setItem('barcode-library', JSON.stringify(library)); }
+            catch (e) { alert(t('alert-storage-full')); }
+        }
+
+        function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
+
+        // Save modal
+        function openSaveModal() {
+            const data = document.getElementById('data-input').value;
+            if (!data) { alert(t('alert-no-content')); return; }
+            const label = data.length > 40 ? data.slice(0, 40) + '…' : data;
+            document.getElementById('save-label-input').value = label;
+            populateGroupSelect('save-group-select', null);
+            document.getElementById('save-modal').classList.add('active');
+            setTimeout(() => document.getElementById('save-label-input').select(), 50);
+        }
+        function closeSaveModal() { document.getElementById('save-modal').classList.remove('active'); }
+        function confirmSave() {
+            const label = document.getElementById('save-label-input').value.trim()
+                || document.getElementById('data-input').value;
+            const groupId = document.getElementById('save-group-select').value || null;
+            const data = document.getElementById('data-input').value;
+            captureCurrentBarcode().then(dataUrl => {
+                library.barcodes.push({
+                    id: uid(), groupId, type: currentType,
+                    value: data, label, imageDataUrl: dataUrl, savedAt: Date.now()
+                });
+                saveLibrary();
+                renderLibrary();
+                closeSaveModal();
+            }).catch(err => alert(t('alert-save-error') + err.message));
+        }
+        document.getElementById('save-modal').addEventListener('click', function (e) { if (e.target === this) closeSaveModal(); });
+        document.getElementById('save-label-input').addEventListener('keydown', e => { if (e.key === 'Enter') confirmSave(); });
+
+        // Move modal
+        let movingId = null;
+        function openMoveModal(id, e) {
+            e.stopPropagation();
+            movingId = id;
+            const bc = library.barcodes.find(b => b.id === id);
+            populateGroupSelect('move-group-select', bc.groupId);
+            document.getElementById('move-modal').classList.add('active');
+        }
+        function closeMoveModal() { document.getElementById('move-modal').classList.remove('active'); movingId = null; }
+        function confirmMove() {
+            if (!movingId) return;
+            library.barcodes.find(b => b.id === movingId).groupId = document.getElementById('move-group-select').value || null;
+            saveLibrary();
+            renderLibrary();
+            closeMoveModal();
+        }
+        document.getElementById('move-modal').addEventListener('click', function (e) { if (e.target === this) closeMoveModal(); });
+
+        // ===== EXPORT / IMPORT =====
+        function exportLibrary() {
+            if (library.barcodes.length === 0 && library.groups.length === 0) {
+                alert(t('alert-export-empty'));
+                return;
+            }
+            const exportData = {
+                version: 1,
+                exportedAt: new Date().toISOString(),
+                groups: library.groups,
+                barcodes: library.barcodes
+            };
+            const json = JSON.stringify(exportData, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+            a.download = `barcode-library-${ts}.json`;
+            a.href = url;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        let pendingImportData = null;
+
+        function triggerImport() {
+            document.getElementById('import-file-input').click();
+        }
+
+        function handleImportFile(e) {
+            const file = e.target.files[0];
+            e.target.value = '';
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function (evt) {
+                try {
+                    const data = JSON.parse(evt.target.result);
+                    if (!data || !Array.isArray(data.barcodes) || !Array.isArray(data.groups)) {
+                        throw new Error(t('import-invalid'));
+                    }
+                    pendingImportData = data;
+                    const summary = t('import-summary')
+                        .replace('{groups}', data.groups.length)
+                        .replace('{barcodes}', data.barcodes.length);
+                    document.getElementById('import-summary-text').textContent = summary;
+                    document.getElementById('import-modal').classList.add('active');
+                } catch (err) {
+                    alert(t('alert-import-error') + err.message);
+                }
+            };
+            reader.onerror = () => alert(t('alert-import-error') + 'read failed');
+            reader.readAsText(file);
+        }
+
+        function closeImportModal() {
+            document.getElementById('import-modal').classList.remove('active');
+            pendingImportData = null;
+        }
+
+        function sanitizeImportedGroup(g) {
+            return {
+                id: g.id || uid(),
+                name: (g.name || '').toString().trim() || 'Group',
+                collapsed: !!g.collapsed
+            };
+        }
+
+        function sanitizeImportedBarcode(b, groupIdMap) {
+            if (!b || !b.value || !b.type || !b.imageDataUrl) return null;
+            const mappedGroupId = b.groupId && groupIdMap && groupIdMap[b.groupId]
+                ? groupIdMap[b.groupId]
+                : (b.groupId && !groupIdMap ? b.groupId : null);
+            return {
+                id: b.id || uid(),
+                groupId: mappedGroupId,
+                type: b.type,
+                value: b.value,
+                label: b.label || b.value,
+                imageDataUrl: b.imageDataUrl,
+                savedAt: b.savedAt || Date.now()
+            };
+        }
+
+        function confirmImport(mode) {
+            if (!pendingImportData) return;
+            try {
+                if (mode === 'replace') {
+                    const newGroups = pendingImportData.groups.map(sanitizeImportedGroup);
+                    const validGroupIds = new Set(newGroups.map(g => g.id));
+                    const newBarcodes = pendingImportData.barcodes
+                        .map(b => sanitizeImportedBarcode(b, null))
+                        .filter(Boolean)
+                        .map(b => ({ ...b, groupId: validGroupIds.has(b.groupId) ? b.groupId : null }));
+                    library.groups = newGroups;
+                    library.barcodes = newBarcodes;
+                } else {
+                    const existingGroupIds = new Set(library.groups.map(g => g.id));
+                    const existingBarcodeIds = new Set(library.barcodes.map(b => b.id));
+                    const groupIdMap = {};
+                    pendingImportData.groups.forEach(g => {
+                        const sanitized = sanitizeImportedGroup(g);
+                        if (existingGroupIds.has(sanitized.id)) sanitized.id = uid();
+                        existingGroupIds.add(sanitized.id);
+                        groupIdMap[g.id] = sanitized.id;
+                        library.groups.push(sanitized);
+                    });
+                    pendingImportData.barcodes.forEach(b => {
+                        const sanitized = sanitizeImportedBarcode(b, groupIdMap);
+                        if (!sanitized) return;
+                        if (existingBarcodeIds.has(sanitized.id)) sanitized.id = uid();
+                        existingBarcodeIds.add(sanitized.id);
+                        library.barcodes.push(sanitized);
+                    });
+                }
+                saveLibrary();
+                renderLibrary();
+                closeImportModal();
+            } catch (err) {
+                alert(t('alert-import-error') + err.message);
+            }
+        }
+
+        document.getElementById('import-modal') &&
+            document.getElementById('import-modal').addEventListener('click', function (e) { if (e.target === this) closeImportModal(); });
+
+        function populateGroupSelect(selectId, selectedGroupId) {
+            const sel = document.getElementById(selectId);
+            sel.innerHTML = `<option value="">— ${translations[currentLang]['ungrouped-name']} —</option>`;
+            library.groups.forEach(g => {
+                const opt = document.createElement('option');
+                opt.value = g.id;
+                opt.textContent = g.name;
+                if (g.id === selectedGroupId) opt.selected = true;
+                sel.appendChild(opt);
+            });
+            if (!selectedGroupId) sel.value = '';
+        }
+
+        // Group operations
+        function addGroup() {
+            const name = prompt(t('prompt-new-group'), t('prompt-group-default') + (library.groups.length + 1));
+            if (!name || !name.trim()) return;
+            library.groups.push({ id: uid(), name: name.trim(), collapsed: false });
+            saveLibrary();
+            renderLibrary();
+        }
+
+        function renameGroup(id, e) {
+            e.stopPropagation();
+            const g = library.groups.find(g => g.id === id);
+            const name = prompt(t('prompt-rename-group'), g.name);
+            if (!name || !name.trim()) return;
+            g.name = name.trim();
+            saveLibrary();
+            renderLibrary();
+        }
+
+        function deleteGroup(id, e) {
+            e.stopPropagation();
+            const g = library.groups.find(g => g.id === id);
+            const count = library.barcodes.filter(b => b.groupId === id).length;
+            const msg = count > 0
+                ? t('confirm-delete-group-items').replace('{name}', g.name).replace('{count}', count)
+                : t('confirm-delete-group').replace('{name}', g.name);
+            if (!confirm(msg)) return;
+            library.barcodes.forEach(b => { if (b.groupId === id) b.groupId = null; });
+            library.groups = library.groups.filter(g => g.id !== id);
+            saveLibrary();
+            renderLibrary();
+        }
+
+        function toggleGroup(id) {
+            const g = library.groups.find(g => g.id === id);
+            if (g) { g.collapsed = !g.collapsed; saveLibrary(); renderLibrary(); }
+        }
+
+        function toggleUngrouped() {
+            library.ungroupedCollapsed = !library.ungroupedCollapsed;
+            saveLibrary();
+            renderLibrary();
+        }
+
+        // Barcode operations
+        function deleteBarcode(id, e) {
+            e.stopPropagation();
+            if (!confirm(t('confirm-delete-barcode'))) return;
+            library.barcodes = library.barcodes.filter(b => b.id !== id);
+            saveLibrary();
+            renderLibrary();
+        }
+
+        function loadBarcode(bc) {
+            document.getElementById('data-input').value = bc.value;
+            document.getElementById('barcode-type').value = bc.type;
+            currentType = bc.type;
+            document.getElementById('panel-title').textContent = typeNames[currentType];
+            updatePlaceholder();
+            generateBarcode();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ===== RENDER =====
+        function renderLibrary() {
+            const content = document.getElementById('library-content');
+            document.getElementById('library-count').textContent = library.barcodes.length;
+
+            if (library.barcodes.length === 0) {
+                content.innerHTML = `<div class="library-empty" data-lang="no-saved">${translations[currentLang]['no-saved']}</div>`;
+                return;
+            }
+
+            content.innerHTML = '';
+
+            const ungrouped = library.barcodes.filter(b => !b.groupId);
+            if (ungrouped.length > 0) {
+                content.appendChild(buildGroupPanel(null, translations[currentLang]['ungrouped-name'], ungrouped, !!library.ungroupedCollapsed));
+            }
+
+            library.groups.forEach(g => {
+                const items = library.barcodes.filter(b => b.groupId === g.id);
+                content.appendChild(buildGroupPanel(g.id, g.name, items, !!g.collapsed));
+            });
+        }
+
+        function buildGroupPanel(groupId, groupName, items, collapsed) {
+            const panel = document.createElement('div');
+            panel.className = 'group-panel';
+
+            // Header
+            const header = document.createElement('div');
+            header.className = 'group-header';
+            header.onclick = () => groupId ? toggleGroup(groupId) : toggleUngrouped();
+
+            const toggle = document.createElement('span');
+            toggle.className = 'group-toggle' + (collapsed ? ' collapsed' : '');
+            toggle.textContent = '▼';
+
+            const icon = document.createElement('span');
+            icon.className = 'group-icon';
+            icon.textContent = groupId ? '📁' : '📋';
+
+            const nameEl = document.createElement('span');
+            nameEl.className = 'group-name-display';
+            nameEl.textContent = groupName;
+
+            const countEl = document.createElement('span');
+            countEl.className = 'group-count';
+            countEl.textContent = `(${items.length})`;
+
+            header.appendChild(toggle);
+            header.appendChild(icon);
+            header.appendChild(nameEl);
+            header.appendChild(countEl);
+
+            if (groupId) {
+                const actions = document.createElement('div');
+                actions.className = 'group-actions';
+
+                const renameBtn = document.createElement('button');
+                renameBtn.className = 'group-action-btn';
+                renameBtn.title = t('title-rename');
+                renameBtn.textContent = '✏️';
+                renameBtn.onclick = (e) => renameGroup(groupId, e);
+
+                const delBtn = document.createElement('button');
+                delBtn.className = 'group-action-btn danger';
+                delBtn.title = t('title-delete-group');
+                delBtn.textContent = '🗑️';
+                delBtn.onclick = (e) => deleteGroup(groupId, e);
+
+                actions.appendChild(renameBtn);
+                actions.appendChild(delBtn);
+                header.appendChild(actions);
+            }
+
+            // Items grid
+            const grid = document.createElement('div');
+            grid.className = 'group-items' + (collapsed ? ' collapsed' : '');
+            items.forEach(bc => grid.appendChild(buildBarcodeCard(bc)));
+
+            panel.appendChild(header);
+            panel.appendChild(grid);
+            return panel;
+        }
+
+        function buildBarcodeCard(bc) {
+            const card = document.createElement('div');
+            card.className = 'bc-card';
+            card.title = t('title-load');
+            card.onclick = () => loadBarcode(bc);
+
+            const thumb = document.createElement('img');
+            thumb.className = 'bc-thumb';
+            thumb.src = bc.imageDataUrl;
+            thumb.alt = bc.label;
+
+            const body = document.createElement('div');
+            body.className = 'bc-body';
+
+            const label = document.createElement('div');
+            label.className = 'bc-label';
+            label.textContent = bc.label;
+
+            const value = document.createElement('div');
+            value.className = 'bc-value';
+            value.textContent = bc.value;
+
+            const meta = document.createElement('div');
+            meta.className = 'bc-meta';
+
+            const badge = document.createElement('span');
+            badge.className = 'bc-type';
+            badge.textContent = typeNames[bc.type] || bc.type;
+
+            const actions = document.createElement('div');
+            actions.className = 'bc-card-actions';
+
+            const moveBtn = document.createElement('button');
+            moveBtn.className = 'bc-btn';
+            moveBtn.title = t('title-move');
+            moveBtn.textContent = '📂';
+            moveBtn.onclick = (e) => openMoveModal(bc.id, e);
+
+            const delBtn = document.createElement('button');
+            delBtn.className = 'bc-btn danger';
+            delBtn.title = t('title-delete');
+            delBtn.textContent = '🗑️';
+            delBtn.onclick = (e) => deleteBarcode(bc.id, e);
+
+            actions.appendChild(moveBtn);
+            actions.appendChild(delBtn);
+            meta.appendChild(badge);
+            meta.appendChild(actions);
+            body.appendChild(label);
+            body.appendChild(value);
+            body.appendChild(meta);
+            card.appendChild(thumb);
+            card.appendChild(body);
+            return card;
+        }
+
+        // ===== i18n =====
+        function t(key) { return (translations[currentLang] || translations['en'])[key] || key; }
+
+        const translations = {
+            vi: {
+                'back': '← Quay lại trang chủ',
+                'data-label': 'Dữ liệu',
+                'refresh': 'Làm mới',
+                'download': 'Tải về',
+                'save': 'Lưu',
+                'settings': 'Cài đặt',
+                'width': 'Chiều rộng',
+                'height': 'Chiều cao',
+                'bg-color': 'Màu nền',
+                'fg-color': 'Màu mã vạch',
+                'cancel': 'Hủy',
+                'apply': 'Áp dụng',
+                'save-title': 'Lưu Barcode',
+                'save-label-lbl': 'Nhãn',
+                'save-group-lbl': 'Nhóm',
+                'save-confirm': 'Lưu',
+                'move-title': 'Chuyển nhóm',
+                'move-group-lbl': 'Chọn nhóm',
+                'move-confirm': 'Chuyển',
+                'saved-barcodes': 'Barcode đã lưu',
+                'new-group': 'Nhóm mới',
+                'no-saved': 'Chưa có barcode nào được lưu. Nhấn "Lưu" để lưu barcode hiện tại.',
+                'ungrouped': '— Chưa phân nhóm —',
+                'ungrouped-name': 'Chưa phân nhóm',
+                'prompt-new-group': 'Tên nhóm mới:',
+                'prompt-group-default': 'Nhóm ',
+                'prompt-rename-group': 'Đổi tên nhóm:',
+                'confirm-delete-group': 'Xóa nhóm "{name}"?',
+                'confirm-delete-group-items': 'Xóa nhóm "{name}"? {count} barcode sẽ về "Chưa phân nhóm".',
+                'confirm-delete-barcode': 'Xóa barcode này?',
+                'alert-no-content': 'Nhập nội dung trước khi lưu.',
+                'alert-storage-full': 'Không đủ bộ nhớ để lưu. Hãy xóa bớt barcode.',
+                'alert-save-error': 'Lỗi khi lưu: ',
+                'error-prefix': 'Lỗi: ',
+                'title-load': 'Click để tải vào trình tạo',
+                'title-rename': 'Đổi tên',
+                'title-delete-group': 'Xóa nhóm',
+                'title-move': 'Chuyển nhóm',
+                'title-delete': 'Xóa',
+                'placeholder-ean13': 'Nhập 12-13 số (VD: 5901234123457)',
+                'placeholder-ean8': 'Nhập 7-8 số (VD: 96385074)',
+                'placeholder-upc': 'Nhập 11-12 số (VD: 012345678905)',
+                'placeholder-code39': 'Nhập chữ và số (A-Z, 0-9, -, ., $, /, +, %, space)',
+                'placeholder-code128': 'Nhập nội dung bất kỳ',
+                'placeholder-default': 'Nhập nội dung...',
+                'export': 'Xuất',
+                'import': 'Nhập',
+                'import-title': 'Nhập Barcode',
+                'import-desc': 'Chọn cách nhập file này.',
+                'import-summary': 'Tìm thấy {groups} nhóm và {barcodes} barcode.',
+                'import-merge': 'Gộp với dữ liệu hiện tại',
+                'import-replace': 'Thay thế toàn bộ',
+                'import-invalid': 'File không hợp lệ',
+                'alert-export-empty': 'Không có barcode nào để xuất.',
+                'alert-import-error': 'Lỗi khi nhập: '
+            },
+            en: {
+                'back': '← Back to Home',
+                'data-label': 'Data',
+                'refresh': 'Refresh',
+                'download': 'Download',
+                'save': 'Save',
+                'settings': 'Settings',
+                'width': 'Width',
+                'height': 'Height',
+                'bg-color': 'Background Color',
+                'fg-color': 'Foreground Color',
+                'cancel': 'Cancel',
+                'apply': 'Apply',
+                'save-title': 'Save Barcode',
+                'save-label-lbl': 'Label',
+                'save-group-lbl': 'Group',
+                'save-confirm': 'Save',
+                'move-title': 'Move to Group',
+                'move-group-lbl': 'Select group',
+                'move-confirm': 'Move',
+                'saved-barcodes': 'Saved Barcodes',
+                'new-group': 'New Group',
+                'no-saved': 'No barcodes saved yet. Click "Save" to save the current barcode.',
+                'ungrouped': '— Ungrouped —',
+                'ungrouped-name': 'Ungrouped',
+                'prompt-new-group': 'New group name:',
+                'prompt-group-default': 'Group ',
+                'prompt-rename-group': 'Rename group:',
+                'confirm-delete-group': 'Delete group "{name}"?',
+                'confirm-delete-group-items': 'Delete group "{name}"? {count} barcodes will move to Ungrouped.',
+                'confirm-delete-barcode': 'Delete this barcode?',
+                'alert-no-content': 'Enter content before saving.',
+                'alert-storage-full': 'Not enough storage. Please delete some barcodes.',
+                'alert-save-error': 'Error saving: ',
+                'error-prefix': 'Error: ',
+                'title-load': 'Click to load into generator',
+                'title-rename': 'Rename',
+                'title-delete-group': 'Delete group',
+                'title-move': 'Move to group',
+                'title-delete': 'Delete',
+                'placeholder-ean13': 'Enter 12-13 digits (e.g.: 5901234123457)',
+                'placeholder-ean8': 'Enter 7-8 digits (e.g.: 96385074)',
+                'placeholder-upc': 'Enter 11-12 digits (e.g.: 012345678905)',
+                'placeholder-code39': 'Enter letters and numbers (A-Z, 0-9, -, ., $, /, +, %, space)',
+                'placeholder-code128': 'Enter any content',
+                'placeholder-default': 'Enter content...',
+                'export': 'Export',
+                'import': 'Import',
+                'import-title': 'Import Barcodes',
+                'import-desc': 'Choose how to import this file.',
+                'import-summary': 'Found {groups} group(s) and {barcodes} barcode(s).',
+                'import-merge': 'Merge with existing',
+                'import-replace': 'Replace all existing',
+                'import-invalid': 'Invalid file format',
+                'alert-export-empty': 'No barcodes to export.',
+                'alert-import-error': 'Import error: '
+            }
+        };
+
+        let currentLang = localStorage.getItem('barcode-lang') || 'en';
+
+        function setLang(lang) {
+            currentLang = lang;
+            localStorage.setItem('barcode-lang', lang);
+            document.documentElement.lang = lang;
+            document.getElementById('lang-text').textContent = lang === 'vi' ? 'EN' : 'VI';
+            document.querySelectorAll('[data-lang]').forEach(el => {
+                const key = el.getAttribute('data-lang');
+                if (translations[lang][key]) el.textContent = translations[lang][key];
+            });
+            updatePlaceholder();
+            renderLibrary();
+        }
+
+        function updatePlaceholder() {
+            const input = document.getElementById('data-input');
+            const t = translations[currentLang];
+            const map = { ean13: 'placeholder-ean13', ean8: 'placeholder-ean8', upc: 'placeholder-upc', code39: 'placeholder-code39', code128: 'placeholder-code128' };
+            input.placeholder = t[map[currentType] || 'placeholder-default'];
+        }
+
+        function toggleLang() { setLang(currentLang === 'vi' ? 'en' : 'vi'); }
+
+        // Init
+        generateBarcode();
+        setLang(currentLang);
+    </script>
+</body>
+</html>
